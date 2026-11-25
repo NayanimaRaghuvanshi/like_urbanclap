@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import { Avatar, Badge } from "@/components/ui";
 import { categoryBySlug } from "@/lib/catalog";
 import { providersFor } from "@/lib/queries";
+import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Our Professionals" };
 
-export default function Providers() {
+export default async function Providers() {
+  await syncDb();
   const list = providersFor();
   return (
     <div className="container-x py-10">

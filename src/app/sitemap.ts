@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
 import { CATEGORIES } from "@/lib/catalog";
-import { db } from "@/lib/db";
+import { db, syncDb } from "@/lib/db";
 import { allSeoPages } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await syncDb();
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const statics = ["", "/services", "/gallery", "/about", "/contact", "/faqs", "/providers", "/terms", "/privacy"];
   return [

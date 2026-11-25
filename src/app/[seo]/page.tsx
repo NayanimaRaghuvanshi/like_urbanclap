@@ -9,6 +9,7 @@ import { durationLabel, inr } from "@/lib/format";
 import { distanceM } from "@/lib/geo";
 import { activeServices, ratingSummary } from "@/lib/queries";
 import { parseSeo, seoSlug, servedLocalities } from "@/lib/seo";
+import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,8 @@ export function generateMetadata({ params }: { params: { seo: string } }): Metad
   };
 }
 
-export default function SeoPage({ params }: { params: { seo: string } }) {
+export default async function SeoPage({ params }: { params: { seo: string } }) {
+  await syncDb();
   const p = parseSeo(params.seo);
   if (!p) notFound();
   const { category: c, locality: l } = p;

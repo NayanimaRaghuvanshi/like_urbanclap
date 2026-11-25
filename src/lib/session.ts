@@ -1,28 +1,32 @@
 import "server-only";
 import { cookies } from "next/headers";
 import crypto from "node:crypto";
-import { db, mutate } from "./db";
 
 const COOKIE = "hs_session";
 const ADMIN_COOKIE = "hs_admin";
 const PRO_COOKIE = "hs_pro";
 
+const SECRET = () => process.env.SESSION_SECRET || (process.env.ADMIN_PASSWORD || "admin123") + "-homeserv-session";
+const hmac = (v: string) => crypto.createHmac("sha256", SECRET()).update(v).digest("hex").slice(0, 40);
+
+/** Customer session = signed cookie (no server-side state, so it works across serverless instances). */
 export function createSession(phone: string) {
-  const token = crypto.randomBytes(24).toString("hex");
-  mutate((d) => {
-    d.sessions[token] = { phone, createdAt: new Date().toISOString() };
-  });
-  cookies().set(COOKIE, token, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30, secure: process.env.NODE_ENV === "production" });
+  const v = `${phone}.${Date.now()}`;
+  cookies().set(COOKIE, `${v}.${hmac(v)}`, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30, secure: process.env.NODE_ENV === "production" });
 }
 
 export function currentPhone(): string | undefined {
   const t = cookies().get(COOKIE)?.value;
-  return t ? db().sessions[t]?.phone : undefined;
+  if (!t) return;
+  const i = t.lastIndexOf(".");
+  const v = t.slice(0, i);
+  const sig = t.slice(i + 1);
+  const expected = hmac(v);
+  if (sig.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return;
+  return v.split(".")[0];
 }
 
 export function logout() {
-  const t = cookies().get(COOKIE)?.value;
-  if (t) mutate((d) => void delete d.sessions[t]);
   cookies().delete(COOKIE);
 }
 

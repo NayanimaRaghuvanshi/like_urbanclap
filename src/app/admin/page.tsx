@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { bookingView } from "@/lib/bookings";
 import { CATEGORIES } from "@/lib/catalog";
-import { db } from "@/lib/db";
+import { db, syncDb } from "@/lib/db";
 import { isAdmin } from "@/lib/session";
 import { allSlots, bookableDates, istDate, slotGroup } from "@/lib/slots";
 import { AdminDashboard, AdminLogin } from "./AdminDashboard";
@@ -9,7 +9,8 @@ import { AdminDashboard, AdminLogin } from "./AdminDashboard";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  await syncDb();
   if (!isAdmin()) return <AdminLogin />;
   const d = db();
   const bookings = d.bookings.map((b) => ({ ...bookingView(b, "admin"), customerPhone: b.customerPhone, notes: b.notes, photos: b.photos }));

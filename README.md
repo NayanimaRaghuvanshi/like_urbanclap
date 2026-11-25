@@ -76,7 +76,7 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
 
 | Concern | Current | Production swap |
 |---|---|---|
-| Database | JSON file in `.data/db.json` via `src/lib/db.ts` (auto-seeded) | PostgreSQL + PostGIS — schema in `db/schema.sql` |
+| Database | Upstash Redis (if configured) or a JSON file `.data/db.json`, via `src/lib/db.ts` (auto-seeded) | PostgreSQL + PostGIS — schema in `db/schema.sql` |
 | SMS / WhatsApp / email | Logged to Admin → Inbox (`src/lib/notify.ts`) | MSG91/Twilio + Gupshup/Interakt + Resend/SES in `deliver()` |
 | OTP delivery | Code returned to the browser when `OTP_DEV_MODE=true` | Set `OTP_DEV_MODE=false` + SMS provider |
 | Payments | Simulated checkout when Razorpay keys are absent | Set `RAZORPAY_KEY_ID/SECRET` — real orders + signature verification are already wired (`src/lib/payments.ts`). Add refunds for paid-then-cancelled bookings. |
@@ -85,8 +85,18 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
 | Reviews, ratings, providers | Sample data, flagged by the purple demo banner (`NEXT_PUBLIC_DEMO_MODE=false` hides it) | Real data only — the PRD's "we only claim what we verify" |
 | Admin auth | Single shared password | Proper staff accounts / SSO |
 
-The JSON store is single-process; deploy on one Node instance (e.g. Railway/Render with a volume) or
-move to Postgres before running on serverless (Vercel).
+## Deploying on Vercel
+
+1. Import the repo in Vercel (framework: Next.js, no build settings needed).
+2. **Storage → Marketplace → Upstash Redis (free) → Connect to this project.** This sets
+   `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` (Vercel KV's `KV_REST_API_URL` / `KV_REST_API_TOKEN` also work).
+3. Set `ADMIN_PASSWORD` (and optionally `SESSION_SECRET`, `NEXT_PUBLIC_SITE_URL`) under Settings → Environment Variables.
+4. Redeploy.
+
+Without Redis the site still runs on Vercel, but data lives in each server instance's `/tmp` and disappears
+on cold starts, so bookings can vanish. The whole store is one JSON document (last write wins), which is
+fine for a small business; move to Postgres for higher volume. Customer logins are signed cookies, so
+they work across instances either way.
 
 ## Project layout
 

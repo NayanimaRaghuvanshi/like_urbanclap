@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { bookingView } from "@/lib/bookings";
 import { categoryBySlug } from "@/lib/catalog";
-import { db } from "@/lib/db";
+import { db, syncDb } from "@/lib/db";
 import { visibleReviews } from "@/lib/queries";
 import { currentProId } from "@/lib/session";
 import { bookableDates } from "@/lib/slots";
@@ -10,7 +10,8 @@ import { ProDashboard, ProLogin } from "./ProDashboard";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Partner Dashboard", robots: { index: false } };
 
-export default function ProPage() {
+export default async function ProPage() {
+  await syncDb();
   const id = currentProId();
   const p = id ? db().providers.find((x) => x.id === id) : undefined;
   if (!p) return <ProLogin />;

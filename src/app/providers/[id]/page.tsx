@@ -4,17 +4,19 @@ import type { Metadata } from "next";
 import { ReviewList } from "@/components/ReviewList";
 import { Avatar, Badge } from "@/components/ui";
 import { WallArt } from "@/components/WallArt";
-import { db } from "@/lib/db";
+import { db, syncDb } from "@/lib/db";
 import { visibleReviews } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
 
-export function generateMetadata({ params }: { params: { id: string } }): Metadata {
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  await syncDb();
   const p = db().providers.find((x) => x.id === params.id);
   return p ? { title: `${p.name} — ${p.speciality}` } : {};
 }
 
-export default function ProviderPage({ params }: { params: { id: string } }) {
+export default async function ProviderPage({ params }: { params: { id: string } }) {
+  await syncDb();
   const p = db().providers.find((x) => x.id === params.id && x.isActive);
   if (!p) notFound();
   const reviews = visibleReviews((r) => r.providerId === p.id);

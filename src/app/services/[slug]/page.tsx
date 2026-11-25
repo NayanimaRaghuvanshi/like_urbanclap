@@ -12,6 +12,7 @@ import { BASE } from "@/lib/config";
 import { dateLabel, inr, slotLabel } from "@/lib/format";
 import { activeServices, nextSlotFor, providersFor, ratingSummary, visibleReviews } from "@/lib/queries";
 import { istDate } from "@/lib/slots";
+import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,8 @@ const STEPS: Record<string, string[]> = {
   furniture: ["Book a consultation (₹99)", "Carpenter-designer measures & shows material samples", "Approve the design & fixed quote", "Pay 50% advance — we build in our workshop", "Installation at home; pay balance after satisfaction"],
 };
 
-export default function CategoryPage({ params }: { params: { slug: string } }) {
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
+  await syncDb();
   const c = categoryBySlug(params.slug);
   if (!c) notFound();
   const services = activeServices(c.slug);

@@ -9,12 +9,14 @@ import { SUPPORT_PHONE } from "@/lib/config";
 import { dateLabel, durationLabel, inr, slotLabel } from "@/lib/format";
 import { activeServices, nextSlotFor, ratingSummary, startingPrice, visibleReviews } from "@/lib/queries";
 import { istDate } from "@/lib/slots";
+import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 const RATE_CARD = ["plb-tap", "ele-fan", "ele-switch", "car-lock", "pnl:PVC Panel (per panel):880:varies", "pnl:WPC Panel (per panel):1350:varies", "wd-texture", "car-assembly", "fur-tv-price:Custom TV Unit:8000:3-5 days", "pvc-full-wall"];
 
-export default function Home() {
+export default async function Home() {
+  await syncDb();
   const overall = ratingSummary();
   const next = nextSlotFor("plumber");
   const today = istDate();

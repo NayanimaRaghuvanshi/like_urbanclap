@@ -1,7 +1,7 @@
 import "server-only";
 import { categoryBySlug } from "./catalog";
 import { FREE_CANCEL_BEFORE_MIN, LATE_CANCEL_FEE } from "./config";
-import { db, mutate, otp4 } from "./db";
+import { db, mutate, otp4, savePhoto } from "./db";
 import { slotLabel, dateLabel, inr } from "./format";
 import { checkServiceable } from "./geo";
 import { notify } from "./notify";
@@ -86,7 +86,7 @@ export function createBooking(input: CreateBookingInput): Booking {
     address: input.address,
     distanceM: geo.distanceM,
     notes: input.notes,
-    photos: input.photos,
+    photos: input.photos.map((_, i) => `/api/photos/${id}/${i}`),
     providerId: provider?.id,
     status: provider ? "assigned" : "confirmed",
     timeline: [{ status: "confirmed", at: now }, ...(provider ? [{ status: "assigned" as const, at: now, note: provider.name }] : [])],
@@ -99,6 +99,7 @@ export function createBooking(input: CreateBookingInput): Booking {
     createdAt: now,
   };
 
+  input.photos.forEach((p, i) => savePhoto(`${id}:${i}`, p));
   mutate((d) => {
     d.bookings.unshift(booking);
     const c = d.customers.find((x) => x.phone === input.phone);

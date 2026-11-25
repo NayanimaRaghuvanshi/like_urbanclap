@@ -5,11 +5,13 @@ import { getBooking } from "@/lib/bookings";
 import { BASE, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/lib/config";
 import { dateLabel, inr, slotLabel } from "@/lib/format";
 import { currentPhone, isAdmin } from "@/lib/session";
+import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Invoice", robots: { index: false } };
 
-export default function Invoice({ params }: { params: { id: string } }) {
+export default async function Invoice({ params }: { params: { id: string } }) {
+  await syncDb();
   const b = getBooking(decodeURIComponent(params.id));
   if (!b || (b.customerPhone !== currentPhone() && !isAdmin())) notFound();
   if (b.status !== "completed")

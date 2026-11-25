@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import { CATEGORIES } from "@/lib/catalog";
 import { durationLabel, inr } from "@/lib/format";
 import { activeServices, ratingSummary } from "@/lib/queries";
+import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "All Services & Rate Card", description: "Full rate card for plumbing, electrical, carpentry, PVC panels, wall design, furniture and painting within 2 km." };
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  await syncDb();
   return (
     <div className="container-x py-10">
       <h1 className="section-title">All Services</h1>

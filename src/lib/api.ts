@@ -2,13 +2,17 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { ZodError, type ZodType, type ZodTypeDef } from "zod";
 import { BookingError } from "./bookings";
+import { flush, syncDb } from "./db";
 
 export const ok = (data: unknown, status = 200) => NextResponse.json(data, { status });
 export const fail = (error: string, status = 400) => NextResponse.json({ error }, { status });
 
 export async function handle(fn: () => Promise<Response> | Response): Promise<Response> {
   try {
-    return await fn();
+    await syncDb();
+    const res = await fn();
+    await flush();
+    return res;
   } catch (e) {
     if (e instanceof ZodError) return fail(e.issues[0]?.message || "Invalid input", 422);
     if (e instanceof BookingError) return fail(e.message, e.status);
