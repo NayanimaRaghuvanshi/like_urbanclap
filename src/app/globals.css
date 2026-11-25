@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-bg text-ink antialiased; font-size: 16px; line-height: 1.5; }
+  h1, h2, h3, h4 { @apply font-display; }
+  :focus-visible { @apply outline-none ring-2 ring-primary ring-offset-2; }
+}
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-6xl px-4 sm:px-6; }
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply btn bg-primary text-white shadow-sm hover:bg-primary-700; }
+  .btn-amber { @apply btn bg-secondary text-ink shadow-sm hover:bg-secondary-600 hover:text-white; }
+  .btn-outline { @apply btn border border-slate-300 bg-white text-ink hover:border-primary hover:text-primary; }
+  .btn-ghost { @apply btn text-primary hover:bg-primary-50; }
+  .btn-sm { @apply min-h-[36px] px-3 py-1.5 text-xs; }
+  .card { @apply rounded-2xl border border-slate-200/70 bg-white shadow-card; }
+  .input { @apply min-h-[44px] w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-slate-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:bg-slate-50; }
+  .label { @apply mb-1.5 block text-sm font-medium text-ink; }
+  .chip { @apply inline-flex min-h-[36px] shrink-0 items-center whitespace-nowrap rounded-full border border-slate-300 bg-white px-4 text-sm font-medium text-ink transition hover:border-primary; }
+  .chip-active { @apply border-primary bg-primary text-white hover:border-primary; }
+  .section-title { @apply text-2xl font-bold tracking-tight text-ink sm:text-3xl; }
+  .muted { @apply text-ink-muted; }
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .skeleton { @apply animate-pulse rounded-lg bg-slate-200; }
+}
+
+.leaflet-container { font: inherit; z-index: 0; }
