@@ -2,11 +2,11 @@
 import { useEffect, useState } from "react";
 import { api, useToast } from "./store";
 
-export interface Me { phone: string | null; name: string | null; email: string | null }
+export interface Me { phone: string | null; name: string | null; email: string | null; otpMode?: "sms" | "dev" | "none"; deviceBookings?: number }
 
 export function useMe() {
   const [me, setMe] = useState<Me>();
-  const refresh = () => api<Me>("/api/me").then(setMe).catch(() => setMe({ phone: null, name: null, email: null }));
+  const refresh = () => api<Me>("/api/me").then(setMe).catch(() => setMe({ phone: null, name: null, email: null, otpMode: "none" }));
   useEffect(() => {
     refresh();
   }, []);
@@ -50,7 +50,7 @@ export function OtpLogin({ onVerified }: { onVerified: (me: Me) => void }) {
     setBusy(true);
     try {
       const r = await api<{ phone: string; name?: string; email?: string }>("/api/otp/verify", { json: { phone, code } });
-      onVerified({ phone: r.phone, name: r.name ?? null, email: r.email ?? null });
+      onVerified({ phone: r.phone, name: r.name ?? null, email: r.email ?? null, otpMode: "sms" });
       toast("Mobile number verified ✓", "ok");
     } catch (e) {
       setErr((e as Error).message);

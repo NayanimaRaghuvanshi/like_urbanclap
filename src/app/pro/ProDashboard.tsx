@@ -36,7 +36,7 @@ export function ProLogin() {
         <label className="block"><span className="label">4-digit PIN</span><input className="input tracking-[0.5em]" type="password" inputMode="numeric" value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))} /></label>
         {err && <p className="text-sm text-danger">{err}</p>}
         <button className="btn-primary w-full">Log in</button>
-        <p className="text-xs text-ink-muted">Demo: 9800000001 / PIN 1111 (Rajesh, plumber) · 9800000005 / 5555 (Anil, panels)</p>
+        <p className="text-xs text-ink-muted">Your PIN is set by the HomeServ admin.</p>
       </form>
     </div>
   );
@@ -70,7 +70,7 @@ export function ProDashboard({ provider, jobs, reviews, dates }: { provider: { n
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Hi, {provider.name.split(" ")[0]} 👋</h1>
-          <p className="text-sm text-ink-muted">{provider.categories.join(", ")} · ⭐ {provider.rating} · {provider.totalJobs} jobs</p>
+          <p className="text-sm text-ink-muted">{provider.categories.join(", ")}{provider.rating > 0 ? ` · ⭐ ${provider.rating}` : ""} · {provider.totalJobs} jobs</p>
         </div>
         <button className="btn-outline btn-sm" onClick={async () => { await api("/api/pro/logout", { method: "POST" }); router.refresh(); }}>Log out</button>
       </div>

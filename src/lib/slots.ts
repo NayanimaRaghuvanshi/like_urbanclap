@@ -1,4 +1,4 @@
-import { CLOSE_MIN, MAX_ADVANCE_DAYS, MAX_OCCUPANCY_MIN, MIN_ADVANCE_MIN, OPEN_MIN, SLOT_MIN } from "./config.ts";
+import { CLOSE_MIN, DEFAULT_SLOT_CAPACITY, MAX_ADVANCE_DAYS, MAX_OCCUPANCY_MIN, MIN_ADVANCE_MIN, OPEN_MIN, SLOT_MIN } from "./config.ts";
 import type { Booking, CategorySlug, Provider, Settings } from "./types.ts";
 
 const IST_OFFSET_MS = 330 * 60000; // India has no DST
@@ -110,15 +110,16 @@ export function slotAvailability(input: AvailabilityInput): SlotAvailability[] {
     if (!isWithinBookingWindow(date, slot, now)) return { slot, available: 0, reason: "past" as const };
     if (!fitsBeforeClose(slot, input.durationMin)) return { slot, available: 0, reason: "late" as const };
     if (dayBlocked || settings.blocked.includes(`${date}|${slot}`)) return { slot, available: 0, reason: "blocked" as const };
-    const free = freeProviders(input, slot).length;
+    const hasTeam = input.providers.some((p) => p.isActive && p.categories.includes(category));
     const startingHere = bookings.filter(
       (b) => b.id !== excludeBookingId && b.category === category && b.date === date && b.slot === slot && b.status !== "cancelled"
     ).length;
     const unassigned = bookings.filter(
       (b) => b.id !== excludeBookingId && b.category === category && b.date === date && b.slot === slot && b.status !== "cancelled" && !b.providerId
     ).length;
-    let available = free - unassigned;
-    if (cap && cap > 0) available = Math.min(available, cap - startingHere);
+    // With professionals: limited by who's free. Without any yet: accept up to the slot capacity; admin assigns later.
+    let available = hasTeam ? freeProviders(input, slot).length - unassigned : (cap && cap > 0 ? cap : DEFAULT_SLOT_CAPACITY) - startingHere;
+    if (hasTeam && cap && cap > 0) available = Math.min(available, cap - startingHere);
     available = Math.max(0, available);
     return { slot, available, reason: available === 0 ? ("full" as const) : undefined };
   });

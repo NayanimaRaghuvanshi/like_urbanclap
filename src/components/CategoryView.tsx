@@ -53,7 +53,7 @@ export function ServiceCard({ s, onDetails, onAdd }: { s: Service; onDetails: ()
         {s.isConsultation && <span className="rounded-full bg-accent-50 px-2 py-0.5 text-xs font-semibold text-violet-700">Consultation</span>}
       </div>
       <p className="mt-1 text-sm text-ink-muted">
-        ⭐ {s.rating.toFixed(2)} ({s.reviewCount}) · {s.isPackage && s.mrp ? <><s className="mr-1">{inr(s.mrp)}</s><b className="text-ink">{inr(s.price)}</b></> : <>Starts at <b className="text-ink">{inr(s.price)}{s.unit ?? ""}</b></>} · {durationLabel(s.durationMin)}
+        {s.reviewCount > 0 && <>⭐ {s.rating.toFixed(1)} ({s.reviewCount}) · </>}{s.isPackage && s.mrp ? <><s className="mr-1">{inr(s.mrp)}</s><b className="text-ink">{inr(s.price)}</b></> : <>Starts at <b className="text-ink">{inr(s.price)}{s.unit ?? ""}</b></>} · {durationLabel(s.durationMin)}
       </p>
       <ul className="mt-3 space-y-1 text-sm">
         {s.inclusions.slice(0, 3).map((i) => <li key={i}>✓ {i}</li>)}
@@ -114,7 +114,7 @@ export function CategoryServices({ services, subcategories }: { services: Servic
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
               <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-ink-muted">Price</p><p className="font-semibold">{inr(details.price)}{details.unit ?? ""}</p></div>
               <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-ink-muted">Duration</p><p className="font-semibold">{durationLabel(details.durationMin)}</p></div>
-              <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-ink-muted">Rating</p><p className="font-semibold">⭐ {details.rating.toFixed(2)}</p></div>
+              <div className="rounded-xl bg-slate-50 p-3"><p className="text-xs text-ink-muted">{details.reviewCount ? "Rating" : "Type"}</p><p className="font-semibold">{details.reviewCount ? `⭐ ${details.rating.toFixed(1)}` : details.isConsultation ? "Visit" : details.isPackage ? "Package" : "Fixed price"}</p></div>
             </div>
             <h4 className="mt-5 text-sm font-semibold">What's included</h4>
             <ul className="mt-2 space-y-1 text-sm">{details.inclusions.map((i) => <li key={i}>✓ {i}</li>)}</ul>

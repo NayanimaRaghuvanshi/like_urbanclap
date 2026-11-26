@@ -5,7 +5,8 @@ import { checkServiceable, distanceM } from "../src/lib/geo.ts";
 import { computeQuote } from "../src/lib/pricing.ts";
 import { estimateWall, LOCALITIES, PANELS } from "../src/lib/catalog.ts";
 import { parseSeo, servedLocalities } from "../src/lib/seo.ts";
-import { SEED_PROVIDERS } from "../src/lib/seed.ts";
+import { SEED_PROVIDERS, seedReviews } from "../src/lib/seed.ts";
+import { TEST_PROVIDERS } from "./fixtures.ts";
 import { slotLabel } from "../src/lib/format.ts";
 import type { Booking } from "../src/lib/types.ts";
 
@@ -41,7 +42,7 @@ test("long jobs must start early enough to finish by 12:30 AM", () => {
 test("availability respects provider bookings, leave, capacity and blocks", () => {
   const now = Date.UTC(2026, 10, 25, 0, 0); // 5:30 AM IST
   const date = "2026-11-25";
-  const plumbers = SEED_PROVIDERS.filter((p) => p.categories.includes("plumber")).map((p) => ({ ...p }));
+  const plumbers = TEST_PROVIDERS.filter((p) => p.categories.includes("plumber")).map((p) => ({ ...p }));
   assert.equal(plumbers.length, 2);
   const booking = { id: "b1", category: "plumber", date, slot: 600, status: "assigned", providerId: plumbers[0].id, items: [{ durationMin: 90, qty: 1 }] } as unknown as Booking;
   const base = { category: "plumber" as const, date, durationMin: 30, providers: plumbers, bookings: [booking], settings: { slotCapacity: {}, blocked: [] }, now };
@@ -103,4 +104,18 @@ test("SEO locality pages", () => {
   assert.equal(parseSeo("bangalore-wall-designer-hsr-layout-sector-2")?.locality.slug, "hsr-layout-sector-2");
   assert.equal(parseSeo("bangalore-plumber-indiranagar")?.locality.slug, "indiranagar");
   assert.equal(parseSeo("mumbai-plumber-agara"), null);
+});
+
+test("no sample data ships, and booking works before any professional is added", () => {
+  assert.equal(SEED_PROVIDERS.length, 0);
+  assert.equal(seedReviews().length, 0);
+  const now = Date.UTC(2026, 10, 25, 0, 0);
+  const date = "2026-11-25";
+  const existing = { id: "b1", category: "painting", date, slot: 600, status: "confirmed", items: [{ durationMin: 60, qty: 1 }] } as unknown as Booking;
+  const base = { category: "painting" as const, date, durationMin: 60, providers: TEST_PROVIDERS, bookings: [existing], settings: { slotCapacity: {}, blocked: [] }, now };
+  const av = slotAvailability(base);
+  assert.equal(av.find((s) => s.slot === 570)!.available, 2); // default capacity
+  assert.equal(av.find((s) => s.slot === 600)!.available, 1); // one already booked
+  assert.equal(slotAvailability({ ...base, settings: { slotCapacity: { painting: 5 }, blocked: [] } }).find((s) => s.slot === 570)!.available, 5);
+  assert.equal(pickProvider(base, 570), undefined); // waits for admin assignment
 });

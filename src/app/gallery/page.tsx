@@ -3,13 +3,13 @@ import type { Metadata } from "next";
 import { GalleryGrid } from "@/components/GalleryGrid";
 import { GALLERY } from "@/lib/catalog";
 
-export const metadata: Metadata = { alternates: { canonical: "/gallery" }, title: "Before & After Gallery", description: "PVC panels, wall designs, furniture, carpentry and painting transformations near you." };
+export const metadata: Metadata = { alternates: { canonical: "/gallery" }, title: "Design Ideas Gallery", description: "PVC panel, wall design, furniture, carpentry and painting ideas with typical time and cost." };
 
 export default function Gallery() {
   return (
     <div className="container-x py-10">
-      <h1 className="section-title">Before & After Gallery</h1>
-      <p className="mb-8 mt-2 text-ink-muted">Real projects in your neighbourhood. Drag each slider to compare.</p>
+      <h1 className="section-title">Design Ideas Gallery</h1>
+      <p className="mb-8 mt-2 text-ink-muted">Illustrated design ideas for popular makeovers, with typical time and cost. Drag each slider to compare.</p>
       <GalleryGrid items={GALLERY} />
       <div className="mt-12 rounded-3xl bg-primary p-8 text-center text-white">
         <h2 className="text-2xl font-bold">Like what you see?</h2>

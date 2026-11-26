@@ -2,14 +2,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { botReply, isOpen, type BotData } from "../src/lib/whatsappBot.ts";
 import { SEED_SERVICES } from "../src/lib/catalog.ts";
-import { SEED_PROVIDERS } from "../src/lib/seed.ts";
+import { TEST_PROVIDERS } from "./fixtures.ts";
 import type { Booking } from "../src/lib/types.ts";
 
 const booking = {
   id: "HS-2026-1126-0007", customerPhone: "+919876543210", category: "plumber", date: "2026-11-26", slot: 1020,
-  status: "assigned", providerId: "rajesh-kumar", items: [{ serviceId: "plb-tap", name: "Tap Repair / Replacement", price: 99, qty: 1, durationMin: 30 }],
+  status: "assigned", providerId: "pro-a", items: [{ serviceId: "plb-tap", name: "Tap Repair / Replacement", price: 99, qty: 1, durationMin: 30 }],
 } as unknown as Booking;
-const d: BotData = { siteUrl: "https://example.com", supportPhone: "+916394014604", services: SEED_SERVICES, bookings: [booking], providers: SEED_PROVIDERS };
+const d: BotData = { siteUrl: "https://example.com", supportPhone: "+916394014604", services: SEED_SERVICES, bookings: [booking], providers: TEST_PROVIDERS };
 const noon = Date.UTC(2026, 10, 26, 6, 30); // 12:00 IST
 const at = (text: string, phone = "+919876543210", type = "text") => botReply({ text, type, phone, name: "Priya Sharma", now: noon }, d);
 
@@ -31,7 +31,7 @@ test("numbers and keywords open a category with prices and link", () => {
 });
 
 test("tracking only reveals the sender's own bookings", () => {
-  assert.match(at("8").text, /HS-2026-1126-0007[\s\S]*Rajesh Kumar[\s\S]*track\/HS-2026-1126-0007/);
+  assert.match(at("8").text, /HS-2026-1126-0007[\s\S]*Test Plumber A[\s\S]*track\/HS-2026-1126-0007/);
   assert.match(at("status of hs-2026-1126-0007?").text, /Professional assigned/);
   assert.match(at("HS-2026-1126-0007", "+919999999999").text, /couldn't find/);
   assert.match(at("track", "+919999999999").text, /no upcoming bookings/);

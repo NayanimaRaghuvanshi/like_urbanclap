@@ -19,17 +19,23 @@ export function MyBookings() {
   const [trackId, setTrackId] = useState("");
 
   useEffect(() => {
-    if (me?.phone) api<{ bookings: BookingView[] }>("/api/bookings").then((r) => setList(r.bookings)).catch(() => setList([]));
+    if (me?.phone || me?.deviceBookings) api<{ bookings: BookingView[] }>("/api/bookings").then((r) => setList(r.bookings)).catch(() => setList([]));
   }, [me]);
 
   if (!me) return <div className="container-x py-10"><div className="skeleton h-64" /></div>;
-  if (!me.phone)
+  if (!me.phone && !me.deviceBookings)
     return (
       <div className="container-x grid max-w-4xl gap-6 py-10 md:grid-cols-2">
         <div>
           <h1 className="text-2xl font-bold">My Bookings</h1>
-          <p className="mb-6 mt-2 text-ink-muted">Log in with the mobile number you booked with.</p>
-          <div className="card p-5"><OtpLogin onVerified={setMe} /></div>
+          {me.otpMode === "none" ? (
+            <p className="mt-2 text-ink-muted">No bookings on this device yet. Bookings show up here on the phone or computer you booked from. Booked somewhere else? Message us on WhatsApp with your booking ID.</p>
+          ) : (
+            <>
+              <p className="mb-6 mt-2 text-ink-muted">Log in with the mobile number you booked with.</p>
+              <div className="card p-5"><OtpLogin onVerified={setMe} /></div>
+            </>
+          )}
         </div>
         <div className="card h-fit p-5">
           <h2 className="font-semibold">Track a booking</h2>
@@ -49,9 +55,9 @@ export function MyBookings() {
     <div className="container-x max-w-3xl py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Bookings</h1>
-        <button className="btn-ghost btn-sm" onClick={async () => { await api("/api/logout", { method: "POST" }); setMe({ phone: null, name: null, email: null }); setList(undefined); }}>Log out</button>
+        {me.phone && <button className="btn-ghost btn-sm" onClick={async () => { await api("/api/logout", { method: "POST" }); setMe({ ...me, phone: null, name: null, email: null }); setList(undefined); }}>Log out</button>}
       </div>
-      <p className="text-sm text-ink-muted">{me.phone}</p>
+      <p className="text-sm text-ink-muted">{me.phone ?? "Bookings made on this device"}</p>
       <div className="mt-5 flex gap-2" role="tablist">
         {TABS.map((t) => <button key={t} role="tab" aria-selected={tab === t} className={`chip ${tab === t ? "chip-active" : ""}`} onClick={() => setTab(t)}>{t}</button>)}
       </div>
@@ -75,7 +81,7 @@ export function MyBookings() {
                 <p>{icon} {b.categoryName}: {b.items.map((i) => i.name).join(" + ")}</p>
                 <p>📅 {dateLabel(b.date)} • {slotLabel(b.slot)}</p>
                 {tab === "Upcoming" && <p>📍 {b.address.line1}, {b.address.building}, {b.address.locality}</p>}
-                {b.provider && tab !== "Cancelled" && <p>👤 {b.provider.name} • ⭐ {b.provider.rating}</p>}
+                {b.provider && tab !== "Cancelled" && <p>👤 {b.provider.name}{b.provider.rating > 0 ? ` • ⭐ ${b.provider.rating}` : ""}</p>}
                 {tab === "Completed" && <p>💰 {inr(b.quote.total)} ({b.paymentStatus === "paid" ? (b.paymentMethod === "online" ? "Paid online" : "Paid") : "Payment pending"})</p>}
                 {b.review && <p className="flex items-center gap-2">You rated: <Stars value={b.review.rating} /></p>}
               </div>

@@ -22,7 +22,7 @@ export default async function ServicesPage() {
               <span className="text-3xl">{c.icon}</span>
               <h2 className="mt-2 font-semibold">{c.shortName}</h2>
               <p className="text-sm text-ink-muted">{c.tagline}</p>
-              <p className="mt-2 text-sm">⭐ {r.avg} · {c.startingLabel}</p>
+              <p className="mt-2 text-sm">{r.total > 0 ? `⭐ ${r.avg} · ` : ""}{c.startingLabel}</p>
             </Link>
           );
         })}

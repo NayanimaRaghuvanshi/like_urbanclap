@@ -52,17 +52,25 @@ export default async function CategoryPage({ params }: { params: { slug: string 
   return (
     <div className="pb-24">
       <JsonLd data={faqLd(c.faqs)} />
-      <JsonLd data={{ "@context": "https://schema.org", "@type": "Service", serviceType: c.name, provider: { "@type": "LocalBusiness", name: "HomeServ" }, areaServed: BASE.name, aggregateRating: { "@type": "AggregateRating", ratingValue: rating.avg, reviewCount: rating.total } }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "Service", serviceType: c.name, provider: { "@type": "LocalBusiness", name: "HomeServ" }, areaServed: BASE.name, ...(rating.total ? { aggregateRating: { "@type": "AggregateRating", ratingValue: rating.avg, reviewCount: rating.total } } : {}) }} />
       <section className={`${c.accent ? "bg-gradient-to-br from-accent-50 to-primary-50" : "bg-white"} border-b border-slate-200`}>
         <div className="container-x py-8">
           <Link href="/services" className="text-sm text-ink-muted hover:text-primary">← Back to Services</Link>
           <h1 className="mt-3 text-2xl font-bold sm:text-4xl">{c.icon} {c.name}</h1>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
-            <span>⭐ <b>{rating.avg}</b> ({c.bookingsLabel})</span>
-            <span className="text-ink-muted">•</span>
+            {rating.total > 0 && (
+              <>
+                <span>⭐ <b>{rating.avg}</b> ({rating.total} review{rating.total > 1 ? "s" : ""})</span>
+                <span className="text-ink-muted">•</span>
+              </>
+            )}
             <span>{next ? (next.date === today ? `Available today from ${slotLabel(next.slot)}` : `Next slot ${dateLabel(next.date, { weekday: "short", day: "numeric", month: "short" })}, ${slotLabel(next.slot)}`) : "Fully booked — call us"}</span>
-            <span className="text-ink-muted">•</span>
-            <span>{pros} verified pros nearby</span>
+            {pros > 0 && (
+              <>
+                <span className="text-ink-muted">•</span>
+                <span>{pros} verified pro{pros > 1 ? "s" : ""}</span>
+              </>
+            )}
           </p>
           <p className="mt-2 text-sm text-ink-muted">⚡ Same-day service · 🛡️ {c.warranty}{isPvc ? " · 300+ designs available" : ""}</p>
         </div>
@@ -111,22 +119,27 @@ export default async function CategoryPage({ params }: { params: { slug: string 
 
         {gallery.length > 0 && (
           <section>
-            <h2 className="mb-4 text-xl font-bold">Before & After</h2>
+            <h2 className="mb-1 text-xl font-bold">Design Ideas</h2>
+            <p className="mb-4 text-sm text-ink-muted">Illustrations of popular makeovers with typical time and cost. Drag to compare.</p>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{gallery.slice(0, 3).map((g) => <GalleryCard key={g.id} item={g} />)}</div>
           </section>
         )}
 
         <section>
           <h2 className="mb-4 text-xl font-bold">Reviews</h2>
-          <div className="grid gap-6 lg:grid-cols-[300px_1fr] [&>*]:min-w-0">
-            <div className="card h-fit p-6">
-              <p className="font-display text-4xl font-bold">{rating.avg}</p>
-              <Stars value={rating.avg} size="text-lg" />
-              <p className="mb-4 text-sm text-ink-muted">from {rating.total.toLocaleString("en-IN")} reviews</p>
-              <Histogram counts={rating.histogram} />
+          {rating.total === 0 ? (
+            <p className="card p-6 text-sm text-ink-muted">No reviews yet. Reviews appear here after customers complete a booking — we publish every rating, good or bad.</p>
+          ) : (
+            <div className="grid gap-6 lg:grid-cols-[300px_1fr] [&>*]:min-w-0">
+              <div className="card h-fit p-6">
+                <p className="font-display text-4xl font-bold">{rating.avg}</p>
+                <Stars value={rating.avg} size="text-lg" />
+                <p className="mb-4 text-sm text-ink-muted">from {rating.total.toLocaleString("en-IN")} review{rating.total > 1 ? "s" : ""}</p>
+                <Histogram counts={rating.histogram} />
+              </div>
+              <ReviewList reviews={reviews} initial={6} />
             </div>
-            <ReviewList reviews={reviews} initial={6} />
-          </div>
+          )}
         </section>
 
         <section>

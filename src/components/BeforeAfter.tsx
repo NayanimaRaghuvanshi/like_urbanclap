@@ -53,7 +53,7 @@ export function GalleryCard({ item }: { item: GalleryItem }) {
       <div className="p-4">
         <h3 className="font-semibold">{item.title}</h3>
         <p className="mt-1 text-sm text-ink-muted">
-          📍 {item.locality} · {item.duration} · ~{inr(item.cost)}
+          Typically {item.duration} · from ~{inr(item.cost)}
         </p>
       </div>
     </article>

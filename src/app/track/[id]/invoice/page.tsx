@@ -4,7 +4,7 @@ import { PrintButton } from "@/components/PrintButton";
 import { getBooking } from "@/lib/bookings";
 import { BASE, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/lib/config";
 import { dateLabel, inr, slotLabel } from "@/lib/format";
-import { currentPhone, isAdmin } from "@/lib/session";
+import { currentPhone, deviceBookings, isAdmin } from "@/lib/session";
 import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +13,7 @@ export const metadata = { title: "Invoice", robots: { index: false } };
 export default async function Invoice({ params }: { params: { id: string } }) {
   await syncDb();
   const b = getBooking(decodeURIComponent(params.id));
-  if (!b || (b.customerPhone !== currentPhone() && !isAdmin())) notFound();
+  if (!b || (b.customerPhone !== currentPhone() && !deviceBookings().includes(b.id) && !isAdmin())) notFound();
   if (b.status !== "completed")
     return <div className="container-x py-16 text-center"><p>The invoice is available once the job is completed.</p><Link className="btn-primary mt-4" href={`/track/${b.id}`}>Back to booking</Link></div>;
   const q = b.quote;

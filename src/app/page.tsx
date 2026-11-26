@@ -80,7 +80,7 @@ export default async function Home() {
             <li>✅ Verified Pros</li>
             <li>⚡ Same-Day Service</li>
             <li>🛡️ Warranty Covered</li>
-            <li>⭐ {overall.total.toLocaleString("en-IN")}+ rated jobs</li>
+            <li>💰 Fixed, upfront prices</li>
           </ul>
           <p className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm ring-1 ring-white/15">
             🕐 Operating: 9 AM – 12:30 AM
@@ -91,8 +91,8 @@ export default async function Home() {
           <figure className="hidden overflow-hidden rounded-3xl bg-white text-ink shadow-2xl ring-1 ring-white/20 lg:block">
             <BeforeAfterSlider variant="fluted" label="Fluted PVC living room" />
             <figcaption className="flex items-center justify-between p-4 text-sm">
-              <span><b>Fluted PVC Living Room</b><br /><span className="text-ink-muted">HSR Layout Sector 2 · 2 days</span></span>
-              <span className="rounded-full bg-secondary-50 px-3 py-1 font-semibold text-amber-700">~₹12,000</span>
+              <span><b>Fluted PVC Living Room</b><br /><span className="text-ink-muted">Design idea · typically 2 days</span></span>
+              <span className="rounded-full bg-secondary-50 px-3 py-1 font-semibold text-amber-700">from ~₹12,000</span>
             </figcaption>
           </figure>
         </div>
@@ -111,7 +111,7 @@ export default async function Home() {
                 <span className={`flex h-14 w-14 items-center justify-center rounded-2xl text-3xl ${c.accent ? "bg-accent-50" : "bg-primary-50"}`}>{c.icon}</span>
                 <h3 className="mt-3 font-semibold">{c.shortName}</h3>
                 <p className="text-sm text-ink-muted">{c.mode === "consultation" && c.consultationFee && c.slug === "furniture" ? `Consult ${inr(c.consultationFee)}` : `Starts ${inr(c.slug === "pvc-panels" ? 880 : from)}`}</p>
-                <p className="mt-2 text-sm">⭐ {r.avg} <span className="text-ink-muted">({r.total.toLocaleString("en-IN")})</span></p>
+                {r.total > 0 && <p className="mt-2 text-sm">⭐ {r.avg} <span className="text-ink-muted">({r.total.toLocaleString("en-IN")})</span></p>}
                 {c.accent && <span className="mt-2 rounded-full bg-accent-50 px-2 py-0.5 text-[11px] font-semibold text-violet-700">Custom design</span>}
               </Link>
             );
@@ -151,8 +151,8 @@ export default async function Home() {
 
       {/* GALLERY */}
       <section className="container-x py-14">
-        <h2 className="section-title text-center">Transformations by Our Experts</h2>
-        <p className="mb-8 mt-2 text-center text-ink-muted">Drag the slider to compare. Every project tagged with locality, duration and cost.</p>
+        <h2 className="section-title text-center">Design Ideas</h2>
+        <p className="mb-8 mt-2 text-center text-ink-muted">Popular makeovers with typical time and cost. Drag the slider to compare before and after.</p>
         <GalleryGrid items={GALLERY} limit={3} carousel />
         <div className="mt-8 text-center"><Link href="/gallery" className="btn-outline">View Full Gallery →</Link></div>
       </section>
@@ -191,7 +191,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* TESTIMONIALS — only real reviews; hidden until the first one arrives */}
+      {overall.total > 0 && (
       <section className="container-x py-14">
         <h2 className="section-title text-center">What Our Customers Say</h2>
         <div className="mt-8 grid gap-8 lg:grid-cols-[320px_1fr] [&>*]:min-w-0">
@@ -208,6 +209,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      )}
 
       {/* TRUST */}
       <section className="bg-primary-50 py-14">

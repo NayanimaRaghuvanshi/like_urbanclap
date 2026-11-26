@@ -20,16 +20,18 @@ npm test          # unit tests: slots, IST time, availability, service-radius ch
 npm run build     # production build + type check
 ```
 
-### Demo logins
+### Logins
 
-| Who | Where | Credentials |
+| Who | Where | How |
 |---|---|---|
-| Customer | `/book`, `/my-bookings` | any Indian mobile number — OTP is shown on screen while `OTP_DEV_MODE=true` |
-| Provider (plumber) | `/pro` | `9800000001` / PIN `1111` (Rajesh) · `9800000002` / `2222` (Irfan) |
-| Provider (panels) | `/pro` | `9800000005` / PIN `5555` (Anil) |
-| Admin | `/admin` | password `admin123` (`ADMIN_PASSWORD`) |
+| Customer | `/book`, `/my-bookings` | SMS OTP when `TWOFACTOR_API_KEY` is set; otherwise booking without OTP, visible on the booking device only. `OTP_DEV_MODE=true` shows codes on screen for local testing. |
+| Provider | `/pro` | phone + 4-digit PIN that the admin sets in Admin → Providers |
+| Admin | `/admin` | `ADMIN_PASSWORD` (default `admin123` — change it) |
 
-All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
+The site ships with **no sample professionals, reviews or ratings**. Ratings appear only from real customer
+reviews. Until you add professionals for a category, bookings are accepted (2 per slot by default, adjustable in
+Admin → Slots) and wait in Admin → Bookings → Unassigned for you to assign. Data from earlier demo builds is
+cleaned up automatically on first load.
 
 ### End-to-end flow to try
 
@@ -37,7 +39,7 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
 2. Plumber → add *Tap Repair* + *Leak Detection* → View Cart.
 3. Pick a slot → address (map pin) → OTP → notes → Review → **Confirm**.
 4. Tracking page shows the assigned pro, the **start OTP** and the status timeline.
-5. Log in at `/pro` as the assigned pro → *On the way* → enter start OTP → customer's page reveals the
+5. Add a professional in Admin → Providers, assign the booking, log in at `/pro` with their phone + PIN → *On the way* → enter start OTP → customer's page reveals the
    **end OTP** → *Complete job* → *Mark collected*.
 6. Customer rates the job, downloads the GST invoice. Admin sees it all, including the notification log.
 
@@ -78,11 +80,10 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
 |---|---|---|
 | Database | Upstash Redis (if configured) or a JSON file `.data/db.json`, via `src/lib/db.ts` (auto-seeded) | PostgreSQL + PostGIS — schema in `db/schema.sql` |
 | SMS / WhatsApp / email | Logged to Admin → Inbox (`src/lib/notify.ts`) | MSG91/Twilio + Gupshup/Interakt + Resend/SES in `deliver()` |
-| OTP delivery | Code returned to the browser when `OTP_DEV_MODE=true` | Set `OTP_DEV_MODE=false` + SMS provider |
+| OTP delivery | 2Factor.in SMS when `TWOFACTOR_API_KEY` is set; otherwise no-OTP booking tied to the device | — |
 | Payments | Simulated checkout when Razorpay keys are absent | Set `RAZORPAY_KEY_ID/SECRET` — real orders + signature verification are already wired (`src/lib/payments.ts`). Add refunds for paid-then-cancelled bookings. |
 | Maps | Leaflet + OpenStreetMap tiles, locality list for autocomplete | Google Places / Ola Maps autocomplete if desired |
-| Images | Illustrated SVG before/after scenes and panel swatches | Real project photos (WebP) |
-| Reviews, ratings, providers | Sample data, flagged by the purple demo banner (`NEXT_PUBLIC_DEMO_MODE=false` hides it) | Real data only — the PRD's "we only claim what we verify" |
+| Images | Illustrated "design ideas" before/after scenes and panel swatches | Real project photos (WebP) |
 | Admin auth | Single shared password | Proper staff accounts / SSO |
 
 ## Deploying on Vercel
@@ -123,7 +124,7 @@ src/
   lib/
     config.ts          business constants (radius, hours, GST, fees)
     slots.ts geo.ts pricing.ts   pure logic (unit-tested)
-    catalog.ts seed.ts categories, services, panels, gallery, localities, demo providers/reviews
+    catalog.ts seed.ts categories, services, panels, design ideas, localities (no sample people/reviews)
     db.ts bookings.ts payments.ts session.ts notify.ts   server-side services
 db/schema.sql          production Postgres/PostGIS schema
 tests/                 node:test unit tests

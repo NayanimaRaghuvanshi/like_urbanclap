@@ -29,7 +29,7 @@ export default async function ProviderPage({ params }: { params: { id: string } 
         <div className="space-y-1 text-sm">
           <h1 className="text-2xl font-bold">{p.name}</h1>
           <p className="text-base">{p.speciality}</p>
-          <p>⭐ <b>{p.rating}</b> ({reviews.length ? `${reviews.length} recent reviews · ` : ""}{p.totalJobs} jobs)</p>
+          <p>{p.rating > 0 ? <>⭐ <b>{p.rating}</b> ({reviews.length} review{reviews.length === 1 ? "" : "s"} · {p.totalJobs} jobs)</> : <>🆕 New to HomeServ{p.totalJobs ? ` · ${p.totalJobs} jobs` : ""}</>}</p>
           <p>📅 With HomeServ since {since}</p>
           <p>🏅 {p.experienceYears} years experience</p>
           <div className="flex flex-wrap gap-2 pt-1">

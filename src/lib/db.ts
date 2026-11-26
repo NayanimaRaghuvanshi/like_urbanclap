@@ -2,7 +2,7 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import { SEED_SERVICES } from "./catalog";
-import { DEFAULT_SETTINGS, SEED_PROVIDERS, seedReviews } from "./seed";
+import { DEFAULT_SETTINGS, LEGACY_DEMO_PROVIDER_IDS, SEED_PROVIDERS, seedReviews } from "./seed";
 import type { Booking, Customer, NotificationLog, Promo, Provider, Review, Service, Settings } from "./types";
 
 /**
@@ -39,6 +39,25 @@ export interface DB {
   waSeen?: string[];
   /** WhatsApp bot: numbers that asked for a person → auto-replies paused until this time (ms) */
   waMuted?: Record<string, number>;
+  /** Data migrations already applied */
+  migrated?: number;
+}
+
+/** Remove the sample professionals/reviews/ratings that early builds shipped with. Keeps real bookings. */
+function migrate(d: DB): boolean {
+  if ((d.migrated ?? 0) >= 2) return false;
+  const demo = new Set(LEGACY_DEMO_PROVIDER_IDS);
+  d.providers = d.providers.filter((p) => !(demo.has(p.id) && /^\+9198000000\d\d$/.test(p.phone)));
+  d.reviews = d.reviews.filter((r) => !r.id.startsWith("r-seed"));
+  d.services.forEach((s) => ((s.rating = 0), (s.reviewCount = 0)));
+  d.bookings.forEach((b) => {
+    if (b.providerId && demo.has(b.providerId) && !d.providers.some((p) => p.id === b.providerId)) {
+      b.providerId = undefined;
+      if (b.status === "assigned") b.status = "confirmed";
+    }
+  });
+  d.migrated = 2;
+  return true;
 }
 
 const DB_VERSION = 1;
@@ -71,6 +90,7 @@ function fresh(): DB {
     counters: {},
     orders: {},
     photoData: {},
+    migrated: 2,
   };
 }
 
@@ -110,7 +130,7 @@ export function db(): DB {
     }
   }
   g.__hsDb = data ?? fresh();
-  if (!data) persist();
+  if (!data || migrate(g.__hsDb)) persist();
   return g.__hsDb;
 }
 
@@ -133,7 +153,7 @@ export async function syncDb(): Promise<void> {
     }
   }
   g.__hsDb = data ?? fresh();
-  if (!data) g.__hsDirty = true;
+  if (!data || migrate(g.__hsDb)) g.__hsDirty = true;
 }
 
 /** Mark state as changed. File mode writes immediately; Redis mode writes on `flush()`. */

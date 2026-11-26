@@ -265,8 +265,8 @@ export function addReview(bookingId: string, phone: string, rating: number, text
     b.reviewId = r.id;
     const p = d.providers.find((x) => x.id === b.providerId);
     if (p) {
-      // Blend into the running average (seeded rating represents past jobs).
-      p.rating = Math.round(((p.rating * p.totalJobs + r.rating) / (p.totalJobs + 1)) * 10) / 10;
+      const mine = d.reviews.filter((x) => x.providerId === p.id && !x.hidden);
+      p.rating = Math.round((mine.reduce((s2, x) => s2 + x.rating, 0) / mine.length) * 10) / 10;
       notify([{ to: p.phone, channel: "whatsapp", audience: "provider", bookingId: b.id, message: `⭐ New ${r.rating}-star review for ${b.id}.` }]);
     }
     return r;

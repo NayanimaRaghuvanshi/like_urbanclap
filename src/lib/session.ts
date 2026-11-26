@@ -30,6 +30,21 @@ export function logout() {
   cookies().delete(COOKIE);
 }
 
+/* ----- Bookings made on this device (used when no OTP/SMS provider is configured) ----- */
+const DEVICE = "hs_dev";
+export function deviceBookings(): string[] {
+  const t = cookies().get(DEVICE)?.value;
+  if (!t) return [];
+  const i = t.lastIndexOf(".");
+  const v = t.slice(0, i);
+  if (hmac("dev:" + v) !== t.slice(i + 1)) return [];
+  return v.split(",").filter(Boolean);
+}
+export function addDeviceBooking(id: string) {
+  const v = [id, ...deviceBookings().filter((x) => x !== id)].slice(0, 30).join(",");
+  cookies().set(DEVICE, `${v}.${hmac("dev:" + v)}`, { httpOnly: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 365, secure: process.env.NODE_ENV === "production" });
+}
+
 /* ----- Admin (single shared password; replace with real auth in production) ----- */
 function adminToken() {
   const pw = process.env.ADMIN_PASSWORD || "admin123";

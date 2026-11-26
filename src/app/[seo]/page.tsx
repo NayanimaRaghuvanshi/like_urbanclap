@@ -38,13 +38,13 @@ export default async function SeoPage({ params }: { params: { seo: string } }) {
   ];
   return (
     <div className="container-x max-w-4xl space-y-10 py-10">
-      <JsonLd data={{ "@context": "https://schema.org", "@type": "LocalBusiness", name: `HomeServ ${c.shortName}`, telephone: SUPPORT_PHONE, areaServed: { "@type": "Place", name: `${l.name}, ${BASE.cityName}`, address: { "@type": "PostalAddress", postalCode: l.pin, addressLocality: l.name, addressRegion: "Karnataka", addressCountry: "IN" } }, openingHours: "Mo-Su 09:00-00:30", aggregateRating: { "@type": "AggregateRating", ratingValue: rating.avg, reviewCount: rating.total } }} />
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "LocalBusiness", name: `HomeServ ${c.shortName}`, telephone: SUPPORT_PHONE, areaServed: { "@type": "Place", name: `${l.name}, ${BASE.cityName}`, address: { "@type": "PostalAddress", postalCode: l.pin, addressLocality: l.name, addressRegion: "Karnataka", addressCountry: "IN" } }, openingHours: "Mo-Su 09:00-00:30", ...(rating.total ? { aggregateRating: { "@type": "AggregateRating", ratingValue: rating.avg, reviewCount: rating.total } } : {}) }} />
       <JsonLd data={{ "@context": "https://schema.org", "@type": "Service", serviceType: c.name, areaServed: l.name, provider: { "@type": "LocalBusiness", name: "HomeServ" } }} />
       <JsonLd data={faqLd(faqs)} />
       <header>
         <p className="text-sm text-ink-muted"><Link href="/">Home</Link> › <Link href={`/services/${c.slug}`}>{c.shortName}</Link> › {l.name}</p>
         <h1 className="mt-2 text-3xl font-bold">{c.icon} {c.shortName} in {l.name}, {BASE.cityName}</h1>
-        <p className="mt-2 flex items-center gap-2 text-sm"><Stars value={rating.avg} /> {rating.avg} · {rating.total.toLocaleString("en-IN")} reviews</p>
+        {rating.total > 0 && <p className="mt-2 flex items-center gap-2 text-sm"><Stars value={rating.avg} /> {rating.avg} · {rating.total.toLocaleString("en-IN")} reviews</p>}
         <p className="mt-3 text-ink-muted">{c.description} Serving {l.name} and nearby areas from 9 AM to 12:30 AM, every day.</p>
         <div className="mt-5 flex gap-3"><Link href={`/services/${c.slug}`} className="btn-primary">Book {c.shortName}</Link><a href={`tel:${SUPPORT_PHONE}`} className="btn-outline">☎ Call</a></div>
       </header>

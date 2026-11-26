@@ -3,7 +3,7 @@ import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { DemoBanner, WhatsAppFab } from "@/components/Floating";
+import { WhatsAppFab } from "@/components/Floating";
 import { StoreProvider, ToastProvider } from "@/components/store";
 import { BASE, SITE_URL } from "@/lib/config";
 
@@ -31,7 +31,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen font-sans">
         <ToastProvider>
           <StoreProvider>
-            <DemoBanner />
             <Navbar />
             <main>{children}</main>
             <Footer />

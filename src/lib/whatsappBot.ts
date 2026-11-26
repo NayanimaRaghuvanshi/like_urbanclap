@@ -87,7 +87,7 @@ function bookingLine(b: Booking, d: BotData) {
     `*${b.id}* — ${b.items.map((i) => i.name).join(", ")}`,
     `📅 ${dateLabel(b.date)}, ${slotLabel(b.slot)}`,
     `Status: ${STATUS[b.status]}`,
-    ...(pro && b.status !== "cancelled" ? [`Pro: ${pro.name} ⭐ ${pro.rating}`] : []),
+    ...(pro && b.status !== "cancelled" ? [`Pro: ${pro.name}${pro.rating > 0 ? ` ⭐ ${pro.rating}` : ""}`] : []),
     `Track: ${d.siteUrl}/track/${b.id}`,
   ].join("\n");
 }

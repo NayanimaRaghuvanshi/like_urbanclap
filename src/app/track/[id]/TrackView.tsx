@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { BookingActions, ReviewForm } from "@/components/BookingActions";
-import { OtpLogin } from "@/components/OtpLogin";
+import { OtpLogin, useMe } from "@/components/OtpLogin";
+import { WHATSAPP_NUMBER } from "@/lib/config";
 import { api } from "@/components/store";
 import { Avatar, Badge, Stars } from "@/components/ui";
 import type { BookingView } from "@/lib/bookings";
@@ -22,6 +23,7 @@ const time = (iso: string) => new Date(iso).toLocaleTimeString("en-IN", { hour: 
 export function TrackView({ id, isNew }: { id: string; isNew: boolean }) {
   const [b, setB] = useState<BookingView>();
   const [err, setErr] = useState<{ msg: string; auth?: boolean }>();
+  const { me } = useMe();
   const load = useCallback(async () => {
     try {
       const r = await api<{ booking: BookingView }>(`/api/bookings/${encodeURIComponent(id)}`);
@@ -42,8 +44,17 @@ export function TrackView({ id, isNew }: { id: string; isNew: boolean }) {
     return (
       <div className="container-x max-w-md py-12">
         <h1 className="text-2xl font-bold">Track booking {id}</h1>
-        <p className="mb-6 mt-2 text-ink-muted">Verify the mobile number used for this booking.</p>
-        <div className="card p-5"><OtpLogin onVerified={load} /></div>
+        {me?.otpMode === "none" ? (
+          <p className="mt-2 text-ink-muted">
+            For your privacy, bookings open only on the device they were made from.{" "}
+            <a className="text-primary underline" href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(`Hi, I need an update on booking ${id}`)}`} target="_blank" rel="noopener noreferrer">Message us on WhatsApp</a> for an update.
+          </p>
+        ) : (
+          <>
+            <p className="mb-6 mt-2 text-ink-muted">Verify the mobile number used for this booking.</p>
+            <div className="card p-5"><OtpLogin onVerified={load} /></div>
+          </>
+        )}
       </div>
     );
   if (err) return <div className="container-x py-16 text-center"><p className="text-lg font-semibold">{err.msg}</p><Link className="btn-primary mt-6" href="/my-bookings">My Bookings</Link></div>;
@@ -84,7 +95,7 @@ export function TrackView({ id, isNew }: { id: string; isNew: boolean }) {
             <Avatar name={b.provider.name} hue={b.provider.avatarHue} size={64} />
             <div className="flex-1 text-sm">
               <Link href={`/providers/${b.provider.id}`} className="text-lg font-semibold hover:text-primary">{b.provider.name}</Link>
-              <p>⭐ {b.provider.rating} ({b.provider.totalJobs} jobs) · {b.provider.experienceYears} yrs experience</p>
+              <p>{b.provider.rating > 0 ? `⭐ ${b.provider.rating} (${b.provider.totalJobs} jobs) · ` : ""}{b.provider.experienceYears} yrs experience</p>
               <p className="text-ink-muted">Speciality: {b.provider.speciality}</p>
               <p className="mt-1 flex flex-wrap gap-1.5">{b.provider.aadhaarVerified && <Badge tone="green">✅ Aadhaar KYC</Badge>}{b.provider.policeVerified && <Badge tone="green">✅ Police verified</Badge>}</p>
               <p className="mt-2 text-ink-muted">📞 Will call 30 mins before arrival</p>

@@ -25,10 +25,7 @@ export interface Category {
   mode: BookingMode;
   consultationFee?: number;
   warranty: string;
-  bookingsLabel: string;
   subcategories: string[];
-  /** Seeded aggregate rating histogram [5★,4★,3★,2★,1★] for demo data */
-  histogram: [number, number, number, number, number];
   faqs: Faq[];
   accent?: boolean;
 }
@@ -143,6 +140,8 @@ export interface Booking {
   reviewId?: string;
   cancelFee?: number;
   rescheduleCount: number;
+  /** false when booked without OTP (no SMS provider configured) */
+  phoneVerified?: boolean;
   createdAt: string;
 }
 

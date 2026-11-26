@@ -1,5 +1,4 @@
 import "server-only";
-import { CATEGORIES, categoryBySlug } from "./catalog";
 import { db } from "./db";
 import { nextAvailable } from "./slots";
 import type { CategorySlug, Review } from "./types";
@@ -7,14 +6,11 @@ import type { CategorySlug, Review } from "./types";
 export const visibleReviews = (filter: (r: Review) => boolean = () => true) =>
   db().reviews.filter((r) => !r.hidden && filter(r)).sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt));
 
-/** Histogram = seeded aggregate (historic) + live reviews collected on the platform. */
+/** Rating histogram [5★…1★] from real customer reviews only. */
 export function histogramFor(category?: CategorySlug): number[] {
-  const cats = category ? [categoryBySlug(category)!] : CATEGORIES;
   const h = [0, 0, 0, 0, 0];
-  cats.forEach((c) => c.histogram.forEach((v, i) => (h[i] += v)));
   db().reviews.forEach((r) => {
-    if (r.id.startsWith("r-seed") || r.hidden) return;
-    if (!category || r.category === category) h[5 - r.rating]++;
+    if (!r.hidden && (!category || r.category === category)) h[5 - r.rating]++;
   });
   return h;
 }
@@ -26,7 +22,16 @@ export function ratingSummary(category?: CategorySlug) {
   return { histogram: h, total, avg: Math.round(avg * 10) / 10 };
 }
 
-export const activeServices = (category?: CategorySlug) => db().services.filter((s) => s.isActive && (!category || s.category === category));
+/** Active services with rating/review count computed from real reviews. */
+export function activeServices(category?: CategorySlug) {
+  const reviews = db().reviews.filter((r) => !r.hidden);
+  return db()
+    .services.filter((s) => s.isActive && (!category || s.category === category))
+    .map((s) => {
+      const mine = reviews.filter((r) => r.serviceId === s.id);
+      return { ...s, reviewCount: mine.length, rating: mine.length ? Math.round((mine.reduce((a, r) => a + r.rating, 0) / mine.length) * 100) / 100 : 0 };
+    });
+}
 
 export function startingPrice(category: CategorySlug) {
   const list = activeServices(category);

@@ -68,7 +68,7 @@ export function AdminDashboard(p: Props) {
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
         <div className="flex gap-2">
           <button className="btn-outline btn-sm" onClick={() => router.refresh()}>↻ Refresh</button>
-          <button className="btn-outline btn-sm" onClick={() => confirm("Reset ALL data to the demo seed? This deletes every booking.") && run({ op: "reset" }, "Demo data reset")}>Reset demo data</button>
+          <button className="btn-outline btn-sm" onClick={() => confirm("Delete ALL data — bookings, customers, providers, reviews — and start fresh? This cannot be undone.") && run({ op: "reset" }, "All data reset")}>Reset all data</button>
           <button className="btn-outline btn-sm" onClick={async () => { await api("/api/admin/login", { method: "DELETE" }); router.refresh(); }}>Log out</button>
         </div>
       </div>
@@ -136,7 +136,7 @@ function BookingsTab({ bookings, providers, today, run }: Props & { run: Run }) 
         rows={list.map((b) => [
           <span key="i" className="font-medium">{b.id}</span>,
           `${dateLabel(b.date, { day: "numeric", month: "short" })} ${slotLabel(b.slot)}`,
-          <span key="c">{b.customerName}<br /><span className="text-xs text-ink-muted">{b.customerPhone}</span></span>,
+          <span key="c">{b.customerName}<br /><span className="text-xs text-ink-muted">{b.customerPhone}{b.phoneVerified === false ? " · unverified" : ""}</span></span>,
           <span key="s">{b.categoryName}<br /><span className="text-xs text-ink-muted">{b.items.map((i) => i.name).join(", ")}</span></span>,
           b.provider?.name ?? <Badge key="u" tone="red">Unassigned</Badge>,
           <span key="a">{inr(b.quote.total)}<br /><span className="text-xs text-ink-muted">{b.paymentStatus}</span></span>,
@@ -172,7 +172,7 @@ function ManageBooking({ b, providers, run }: { b: AdminBooking; providers: Prov
       {canAssign && (
         <div className="flex gap-2">
           <select className="input" value={pid} onChange={(e) => setPid(e.target.value)} aria-label="Professional">
-            {eligible.map((p) => <option key={p.id} value={p.id}>{p.name} (⭐ {p.rating}){p.leaveDates.includes(b.date) ? " — on leave" : ""}</option>)}
+            {eligible.map((p) => <option key={p.id} value={p.id}>{p.name}{p.rating > 0 ? ` (⭐ ${p.rating})` : ""}{p.leaveDates.includes(b.date) ? " — on leave" : ""}</option>)}
           </select>
           <button className="btn-primary shrink-0" disabled={!pid} onClick={() => run({ op: "assign", bookingId: b.id, providerId: pid }, "Assigned")}>{b.providerId ? "Reassign" : "Assign"}</button>
         </div>
@@ -205,7 +205,7 @@ function ProvidersTab({ providers, run }: { providers: Provider[]; run: Run }) {
         rows={providers.map((p) => [
           <span key="n">{p.name}<br /><span className="text-xs text-ink-muted">{p.phone}</span></span>,
           p.categories.map((c) => categoryBySlug(c)?.shortName).join(", "),
-          `⭐ ${p.rating}`,
+          p.rating > 0 ? `⭐ ${p.rating}` : "—",
           p.totalJobs,
           <span key="v" className="flex flex-wrap gap-1">{p.aadhaarVerified ? <Badge tone="green">Aadhaar</Badge> : <Badge tone="red">No KYC</Badge>}{p.policeVerified ? <Badge tone="green">Police</Badge> : <Badge tone="red">No PV</Badge>}</span>,
           p.isActive ? <Badge key="a" tone="green">Active</Badge> : <Badge key="a" tone="gray">Inactive</Badge>,
@@ -320,7 +320,7 @@ function ReviewsTab({ reviews, run }: { reviews: Review[]; run: Run }) {
         {list.length === 0 && <p className="card p-6 text-center text-ink-muted">Nothing here.</p>}
         {list.map((r) => (
           <div key={r.id} className={`card p-4 text-sm ${r.hidden ? "opacity-60" : ""}`}>
-            <div className="flex flex-wrap items-center gap-2"><Stars value={r.rating} /><b>{r.customerName}</b><span className="text-ink-muted">{r.serviceName} · {relTime(r.createdAt)}</span>{r.flagged && <Badge tone="red">Flagged</Badge>}{r.hidden && <Badge tone="gray">Hidden</Badge>}{r.id.startsWith("r-seed") && <Badge tone="purple">Sample</Badge>}</div>
+            <div className="flex flex-wrap items-center gap-2"><Stars value={r.rating} /><b>{r.customerName}</b><span className="text-ink-muted">{r.serviceName} · {relTime(r.createdAt)}</span>{r.flagged && <Badge tone="red">Flagged</Badge>}{r.hidden && <Badge tone="gray">Hidden</Badge>}</div>
             <p className="mt-1">{r.text}</p>
             {r.adminReply && <p className="mt-1 text-xs text-ink-muted">↳ {r.adminReply}</p>}
             <div className="mt-2 flex gap-2">

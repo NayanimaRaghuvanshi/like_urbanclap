@@ -31,6 +31,8 @@ export const FREE_CANCEL_BEFORE_MIN = 120;
 export const LATE_CANCEL_FEE = 50;
 /** A single booking never blocks a provider for more than this many minutes of the day. */
 export const MAX_OCCUPANCY_MIN = 240;
+/** Bookings accepted per slot for a category that has no professionals added yet (they wait for assignment). */
+export const DEFAULT_SLOT_CAPACITY = 2;
 
 export const GST_RATE = 0.18;
 export const VISITING_CHARGE = 49;

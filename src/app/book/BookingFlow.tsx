@@ -27,10 +27,11 @@ interface Draft {
   email: string;
   notes: string;
   promo: string;
+  phone: string;
   payment: "after_service" | "online";
 }
 
-const emptyDraft: Draft = { address: {}, name: "", email: "", notes: "", promo: "", payment: "after_service" };
+const emptyDraft: Draft = { address: {}, name: "", email: "", notes: "", promo: "", phone: "", payment: "after_service" };
 
 declare global {
   interface Window { Razorpay?: new (opts: Record<string, unknown>) => { open: () => void } }
@@ -100,7 +101,10 @@ export function BookingFlow() {
 
   const geo = d.address.lat !== undefined && d.address.lng !== undefined ? checkServiceable({ lat: d.address.lat, lng: d.address.lng }) : undefined;
   const addressOk = !!(geo?.serviceable && d.address.line1?.trim() && (d.address.building?.trim().length ?? 0) >= 2 && (d.address.locality?.trim().length ?? 0) >= 2 && /^\d{6}$/.test(d.address.pin ?? ""));
-  const detailsOk = !!(me?.phone && d.name.trim().length >= 2 && d.notes.trim().length >= 5 && (!d.email || /^\S+@\S+\.\S+$/.test(d.email)));
+  const guest = !me?.phone && me?.otpMode === "none";
+  const phoneOk = !!me?.phone || (guest && /^[6-9]\d{9}$/.test(d.phone));
+  const shownPhone = me?.phone ?? (d.phone ? `+91${d.phone}` : "");
+  const detailsOk = !!(phoneOk && d.name.trim().length >= 2 && d.notes.trim().length >= 5 && (!d.email || /^\S+@\S+\.\S+$/.test(d.email)));
 
   const canNext: Record<Step, boolean> = { 1: cart.length > 0, 2: !!d.slot, 3: addressOk, 4: detailsOk, 5: terms };
   const go = (s: Step) => {
@@ -122,7 +126,7 @@ export function BookingFlow() {
         await loadRazorpay();
         const rzp = new window.Razorpay!({
           key: order.keyId, order_id: order.orderId, amount: order.amount, currency: "INR", name: "HomeServ",
-          description: cat?.shortName, prefill: { name: d.name, email: d.email, contact: me?.phone }, theme: { color: "#2563EB" },
+          description: cat?.shortName, prefill: { name: d.name, email: d.email, contact: shownPhone }, theme: { color: "#2563EB" },
           handler: (r: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) =>
             submit({ orderId: r.razorpay_order_id, paymentId: r.razorpay_payment_id, signature: r.razorpay_signature }),
           modal: { ondismiss: () => setBusy(false) },
@@ -142,7 +146,7 @@ export function BookingFlow() {
     try {
       const r = await api<{ booking: { id: string } }>("/api/bookings", {
         json: {
-          name: d.name, email: d.email || undefined, items, date: d.slot!.date, slot: d.slot!.slot,
+          name: d.name, email: d.email || undefined, phone: guest ? d.phone : undefined, items, date: d.slot!.date, slot: d.slot!.slot,
           address: d.address, notes: d.notes, photos, paymentMethod: d.payment, payment, promoCode: promoApplied || undefined, acceptTerms: terms,
         },
       });
@@ -277,10 +281,21 @@ export function BookingFlow() {
             {me?.phone ? (
               <div className="flex items-center justify-between gap-3">
                 <div><p className="label mb-0">Mobile Number</p><p className="font-medium">{me.phone} <span className="text-sm text-emerald-600">(verified ✅)</span></p></div>
-                <button className="btn-ghost btn-sm" onClick={async () => { await api("/api/logout", { method: "POST" }); setMe({ phone: null, name: null, email: null }); }}>Change</button>
+                <button className="btn-ghost btn-sm" onClick={async () => { await api("/api/logout", { method: "POST" }); setMe({ ...me, phone: null, name: null, email: null }); }}>Change</button>
               </div>
-            ) : (
+            ) : guest ? (
+              <label className="block">
+                <span className="label">Mobile Number *</span>
+                <div className="flex gap-2">
+                  <span className="input flex w-16 shrink-0 items-center justify-center text-ink-muted">+91</span>
+                  <input className="input" inputMode="numeric" autoComplete="tel-national" placeholder="10-digit mobile number" value={d.phone} onChange={(e) => setD({ ...d, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} />
+                </div>
+                <span className="mt-1 block text-xs text-ink-muted">Our professional will call this number before arriving.</span>
+              </label>
+            ) : me ? (
               <OtpLogin onVerified={(m) => setMe(m)} />
+            ) : (
+              <div className="skeleton h-12" />
             )}
           </div>
           <div className="card grid gap-4 p-5">
@@ -358,7 +373,7 @@ export function BookingFlow() {
               <Row icon="🕐" label={`Arrival ${slotLabel(d.slot.slot)} – ${slotLabel(d.slot.slot + 30)}`} onEdit={() => go(2)} />
               <Row icon="📍" label={[d.address.line1, d.address.building, d.address.landmark, d.address.locality, d.address.pin].filter(Boolean).join(", ")} onEdit={() => go(3)} />
               <Row icon="👤" label={d.name} onEdit={() => go(4)} />
-              <Row icon="📞" label={`${me?.phone} (verified ✅)`} />
+              <Row icon="📞" label={me?.phone ? `${me.phone} (verified ✅)` : shownPhone} onEdit={me?.phone ? undefined : () => go(4)} />
               {d.email && <Row icon="📧" label={d.email} onEdit={() => go(4)} />}
               <Row icon="📝" label={`“${d.notes}”`} onEdit={() => go(4)} />
               {photos.length > 0 && <Row icon="📷" label={`${photos.length} photo${photos.length > 1 ? "s" : ""} attached`} />}

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { body, fail, handle, ok } from "@/lib/api";
 import { addReview, bookingView, cancelBooking, getBooking, rescheduleBooking } from "@/lib/bookings";
-import { currentPhone, isAdmin } from "@/lib/session";
+import { currentPhone, deviceBookings, isAdmin } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 type Ctx = { params: { id: string } };
@@ -10,8 +10,8 @@ function owned(id: string) {
   const b = getBooking(id);
   if (!b) return { error: fail("Booking not found", 404) };
   const phone = currentPhone();
-  if (b.customerPhone !== phone && !isAdmin()) return { error: fail("Please log in with the mobile number used for this booking", 403) };
-  return { b, phone: phone! };
+  if (b.customerPhone !== phone && !deviceBookings().includes(b.id) && !isAdmin()) return { error: fail("Please log in with the mobile number used for this booking", 403) };
+  return { b, phone: phone ?? b.customerPhone };
 }
 
 export const GET = (_req: Request, { params }: Ctx) =>
