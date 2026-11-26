@@ -24,10 +24,11 @@ interface Props {
   customers: (Customer & { bookings: number; spent: number })[];
   dates: string[];
   slots: number[];
+  whatsapp: { token: boolean; phoneId: boolean; verify: boolean; secret: boolean; storage: boolean; webhookUrl: string; lastInbound: string | null };
   analytics: { total: number; active: number; completed: number; cancelled: number; revenue: number; pendingPay: number; avgRating: number | null; newReviews: number; byCategory: Bar[]; popular: Bar[]; localities: Bar[]; heat: number[][]; days: string[]; groups: string[] };
 }
 
-const TABS = ["Bookings", "Providers", "Services", "Slots", "Reviews", "Promos", "Customers", "Analytics", "Inbox"] as const;
+const TABS = ["Bookings", "Providers", "Services", "Slots", "Reviews", "Promos", "Customers", "Analytics", "Inbox", "WhatsApp"] as const;
 
 export function AdminLogin() {
   const router = useRouter();
@@ -90,6 +91,7 @@ export function AdminDashboard(p: Props) {
         {tab === "Customers" && <Table head={["Name", "Phone", "Email", "Bookings", "Paid", "Since"]} rows={p.customers.map((c) => [c.name, c.phone, c.email ?? "—", c.bookings, inr(c.spent), new Date(c.createdAt).toLocaleDateString("en-IN")])} empty="No customers yet." />}
         {tab === "Analytics" && <AnalyticsTab a={p.analytics} />}
         {tab === "Inbox" && <InboxTab {...p} />}
+        {tab === "WhatsApp" && <WhatsAppTab s={p.whatsapp} />}
       </div>
     </div>
   );
@@ -397,6 +399,76 @@ function InboxTab({ waitlist, contacts, notifications }: Props) {
       <section><h2 className="mb-2 font-semibold">Waitlist — {waitlist.length}</h2><Table head={["When", "Phone", "Email", "Area"]} empty="No waitlist sign-ups." rows={waitlist.slice().reverse().map((w) => [relTime(w.at), w.phone ?? "—", w.email ?? "—", w.locality ?? "—"])} /></section>
       <section><h2 className="mb-2 font-semibold">Contact messages — {contacts.length}</h2><Table head={["When", "Name", "Phone", "Message"]} empty="No messages." rows={contacts.map((c) => [relTime(c.at), c.name, c.phone, c.message])} /></section>
       <section><h2 className="mb-2 font-semibold">Notification log (SMS / WhatsApp / Email)</h2><Table head={["When", "Channel", "To", "Booking", "Message"]} empty="Nothing sent yet." rows={notifications.map((n) => [relTime(n.at), n.channel, `${n.audience}: ${n.to}`, n.bookingId ?? "—", n.message])} /></section>
+    </div>
+  );
+}
+
+function WhatsAppTab({ s }: { s: Props["whatsapp"] }) {
+  const toast = useToast();
+  const [chat, setChat] = useState<{ me: boolean; text: string }[]>([]);
+  const [text, setText] = useState("");
+  const [phone, setPhone] = useState("");
+  const live = s.token && s.phoneId && s.verify;
+  const send = async (t: string) => {
+    if (!t.trim()) return;
+    setChat((c) => [...c, { me: true, text: t }]);
+    setText("");
+    try {
+      const r = await api<{ reply: string }>("/api/admin", { json: { op: "waPreview", text: t, phone: phone || undefined } });
+      setChat((c) => [...c, { me: false, text: r.reply }]);
+    } catch (e) {
+      toast((e as Error).message, "err");
+    }
+  };
+  const steps: [boolean, string, React.ReactNode][] = [
+    [s.token, "WHATSAPP_ACCESS_TOKEN", "Permanent System User token from Meta Business Settings (whatsapp_business_messaging permission)."],
+    [s.phoneId, "WHATSAPP_PHONE_NUMBER_ID", "Meta app → WhatsApp → API Setup → Phone number ID (not the phone number itself)."],
+    [s.verify, "WHATSAPP_VERIFY_TOKEN", "Any password you choose — type the same value into Meta's webhook form."],
+    [s.secret, "WHATSAPP_APP_SECRET", "Meta app → App settings → Basic → App secret. Blocks fake messages."],
+    [s.storage, "Upstash Redis (Vercel Storage)", "Needed so booking status is correct on Vercel and the bot doesn't reply twice."],
+  ];
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section className="space-y-4">
+        <div className={`rounded-2xl p-4 text-sm font-medium ${live ? "bg-success-50 text-emerald-700" : "bg-secondary-50 text-amber-800"}`}>
+          {live ? `✅ Bot is configured. ${s.lastInbound ? `Last message received ${relTime(s.lastInbound)}.` : "No messages received yet — finish the webhook step in Meta, then send “hi” to your number."}` : "⚠️ Bot not connected yet — complete the checklist, then redeploy on Vercel."}
+        </div>
+        <div className="card divide-y divide-slate-100">
+          {steps.map(([okk, name, help]) => (
+            <div key={name} className="flex gap-3 p-4 text-sm">
+              <span className="text-lg">{okk ? "✅" : "⬜"}</span>
+              <div><p className="font-mono text-xs font-semibold">{name}</p><p className="text-ink-muted">{help}</p></div>
+            </div>
+          ))}
+        </div>
+        <div className="card p-4 text-sm">
+          <p className="font-semibold">Paste into Meta → WhatsApp → Configuration → Webhook</p>
+          <label className="mt-3 block"><span className="label">Callback URL</span>
+            <div className="flex gap-2"><input readOnly className="input font-mono text-xs" value={s.webhookUrl} /><button className="btn-outline btn-sm shrink-0" onClick={() => { navigator.clipboard?.writeText(s.webhookUrl); toast("Copied", "ok"); }}>Copy</button></div>
+          </label>
+          <p className="mt-2 text-ink-muted">Verify token: the value of WHATSAPP_VERIFY_TOKEN. Then click <b>Manage</b> next to Webhook fields and subscribe to <b>messages</b>.</p>
+        </div>
+      </section>
+      <section className="card flex h-[640px] flex-col overflow-hidden">
+        <div className="flex items-center gap-3 bg-[#075E54] p-3 text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 font-bold">H</span>
+          <div className="flex-1"><p className="font-semibold">HomeServ — bot preview</p><p className="text-xs text-white/70">Exactly what customers will receive</p></div>
+          <input className="w-36 rounded-lg bg-white/15 px-2 py-1 text-xs placeholder:text-white/60" placeholder="Test as phone no." value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} aria-label="Pretend to be this customer phone" />
+        </div>
+        <div className="flex-1 space-y-2 overflow-y-auto bg-[#ECE5DD] p-3">
+          {chat.length === 0 && <p className="mt-10 text-center text-sm text-ink-muted">Type a message like a customer would — “hi”, “1”, “tap leaking”, “8”, “9”.</p>}
+          {chat.map((m, i) => (
+            <div key={i} className={`max-w-[85%] whitespace-pre-wrap rounded-xl px-3 py-2 text-sm shadow-sm ${m.me ? "ml-auto bg-[#DCF8C6]" : "bg-white"}`}>{m.text.replace(/\*(.+?)\*/g, "$1")}</div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-1 border-t border-slate-200 p-2">
+          {["hi", "1", "4", "tap leaking", "price", "8", "9"].map((q) => <button key={q} className="chip btn-sm" onClick={() => send(q)}>{q}</button>)}
+        </div>
+        <form className="flex gap-2 p-2 pt-0" onSubmit={(e) => { e.preventDefault(); send(text); }}>
+          <input className="input" placeholder="Type a message" value={text} onChange={(e) => setText(e.target.value)} />
+          <button className="btn-primary shrink-0">Send</button>
+        </form>
+      </section>
     </div>
   );
 }

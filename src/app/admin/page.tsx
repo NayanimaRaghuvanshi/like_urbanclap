@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { bookingView } from "@/lib/bookings";
 import { CATEGORIES } from "@/lib/catalog";
 import { db, syncDb } from "@/lib/db";
+import { headers } from "next/headers";
 import { isAdmin } from "@/lib/session";
 import { allSlots, bookableDates, istDate, slotGroup } from "@/lib/slots";
 import { AdminDashboard, AdminLogin } from "./AdminDashboard";
@@ -48,6 +49,15 @@ export default async function AdminPage() {
       customers={d.customers.map((c) => ({ ...c, bookings: d.bookings.filter((b) => b.customerPhone === c.phone).length, spent: d.bookings.filter((b) => b.customerPhone === c.phone && b.paymentStatus === "paid").reduce((s, b) => s + b.quote.total, 0) }))}
       dates={bookableDates()}
       slots={allSlots()}
+      whatsapp={{
+        token: !!process.env.WHATSAPP_ACCESS_TOKEN,
+        phoneId: !!process.env.WHATSAPP_PHONE_NUMBER_ID,
+        verify: !!process.env.WHATSAPP_VERIFY_TOKEN,
+        secret: !!process.env.WHATSAPP_APP_SECRET,
+        storage: !!(process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL),
+        webhookUrl: `${process.env.NEXT_PUBLIC_SITE_URL || `https://${headers().get("x-forwarded-host") || headers().get("host")}`}/api/whatsapp/webhook`,
+        lastInbound: d.notifications.find((n) => n.message.startsWith("⬅️"))?.at ?? null,
+      }}
       analytics={{ total: d.bookings.length, active: live.filter((b) => b.status !== "completed").length, completed: completed.length, cancelled: d.bookings.length - live.length, revenue, pendingPay, avgRating, newReviews: newReviews.length, byCategory, popular, localities, heat, days, groups: [...groups] }}
     />
   );

@@ -3,6 +3,9 @@ import { body, fail, handle, normalizePhone, ok } from "@/lib/api";
 import { advanceBooking, assignProvider, cancelBooking } from "@/lib/bookings";
 import { mutate, resetDb } from "@/lib/db";
 import { isAdmin } from "@/lib/session";
+import { SUPPORT_PHONE } from "@/lib/config";
+import { db } from "@/lib/db";
+import { botReply } from "@/lib/whatsappBot";
 
 const cat = z.enum(["plumber", "electrician", "wall-designer", "pvc-panels", "carpenter", "furniture", "painting"]);
 
@@ -52,6 +55,7 @@ const Op = z.discriminatedUnion("op", [
   z.object({ op: z.literal("upsertPromo"), promo: z.object({ code: z.string().regex(/^[A-Z0-9]{3,20}$/, "Code: 3–20 uppercase letters/numbers"), percent: z.number().min(1).max(90), maxOff: z.number().min(1), minOrder: z.number().min(0), active: z.boolean() }) }),
   z.object({ op: z.literal("deletePromo"), code: z.string() }),
   z.object({ op: z.literal("reset") }),
+  z.object({ op: z.literal("waPreview"), text: z.string().max(500), phone: z.string().max(20).optional() }),
 ]);
 
 export const POST = (req: Request) =>
@@ -123,6 +127,13 @@ export const POST = (req: Request) =>
       case "reset":
         resetDb();
         break;
+      case "waPreview": {
+        const d = db();
+        const phone = o.phone ? normalizePhone(o.phone) ?? "+910000000000" : "+910000000000";
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(req.url).origin;
+        const r = botReply({ text: o.text, type: "text", phone }, { siteUrl, supportPhone: SUPPORT_PHONE, services: d.services, bookings: d.bookings, providers: d.providers });
+        return ok({ reply: r.text, handoff: !!r.handoff });
+      }
     }
     return ok({ ok: true });
   });
