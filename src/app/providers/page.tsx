@@ -6,7 +6,7 @@ import { providersFor } from "@/lib/queries";
 import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Our Professionals" };
+export const metadata: Metadata = { alternates: { canonical: "/providers" }, title: "Our Professionals" };
 
 export default async function Providers() {
   await syncDb();

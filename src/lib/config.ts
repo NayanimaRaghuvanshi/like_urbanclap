@@ -15,6 +15,12 @@ export const SUPPORT_PHONE = env("NEXT_PUBLIC_SUPPORT_PHONE", "+916394014604");
 export const WHATSAPP_NUMBER = env("NEXT_PUBLIC_WHATSAPP_NUMBER", "916394014604");
 export const SUPPORT_EMAIL = "hello@homeserv.in";
 
+/** Public site address used in sitemap, canonical links and Google structured data.
+ * Set NEXT_PUBLIC_SITE_URL for a custom domain; on Vercel the production domain is detected automatically. */
+const vercelProd = env("NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL", "") || env("VERCEL_PROJECT_PRODUCTION_URL", "");
+export const SITE_URL = (env("NEXT_PUBLIC_SITE_URL", "") || (vercelProd ? `https://${vercelProd}` : "http://localhost:3000")).replace(/\/$/, "");
+export const BRAND = "HomeServ";
+
 /** Operating window: 9:00 AM → 12:30 AM next day. Slots are 30-minute starts. */
 export const OPEN_MIN = 9 * 60; // 9:00 AM
 export const CLOSE_MIN = 24 * 60 + 30; // 12:30 AM (next day)

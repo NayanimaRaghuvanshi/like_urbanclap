@@ -6,7 +6,7 @@ import { activeServices, ratingSummary } from "@/lib/queries";
 import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "All Services & Rate Card", description: "Full rate card for plumbing, electrical, carpentry, PVC panels, wall design, furniture and painting." };
+export const metadata: Metadata = { alternates: { canonical: "/services" }, title: "All Services & Rate Card", description: "Full rate card for plumbing, electrical, carpentry, PVC panels, wall design, furniture and painting." };
 
 export default async function ServicesPage() {
   await syncDb();

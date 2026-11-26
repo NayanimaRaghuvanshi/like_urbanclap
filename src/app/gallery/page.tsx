@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { GalleryGrid } from "@/components/GalleryGrid";
 import { GALLERY } from "@/lib/catalog";
 
-export const metadata: Metadata = { title: "Before & After Gallery", description: "PVC panels, wall designs, furniture, carpentry and painting transformations near you." };
+export const metadata: Metadata = { alternates: { canonical: "/gallery" }, title: "Before & After Gallery", description: "PVC panels, wall designs, furniture, carpentry and painting transformations near you." };
 
 export default function Gallery() {
   return (

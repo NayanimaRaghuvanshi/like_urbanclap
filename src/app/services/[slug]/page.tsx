@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const c = categoryBySlug(params.slug);
   if (!c) return {};
-  return { title: `${c.name} near ${BASE.name}`, description: `${c.description} ${c.startingLabel}. Open 9 AM – 12:30 AM.` };
+  return { alternates: { canonical: `/services/${c.slug}` }, title: `${c.name} near ${BASE.name}`, description: `${c.description} ${c.startingLabel}. Open 9 AM – 12:30 AM.` };
 }
 
 const STEPS: Record<string, string[]> = {

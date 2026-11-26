@@ -3,7 +3,7 @@ import { JsonLd, faqLd } from "@/components/JsonLd";
 import { Faqs } from "@/components/ui";
 import { CATEGORIES } from "@/lib/catalog";
 
-export const metadata: Metadata = { title: "FAQs" };
+export const metadata: Metadata = { alternates: { canonical: "/faqs" }, title: "FAQs" };
 
 const GENERAL = [
   { q: "Which areas do you serve?", a: "Homes and offices across the city. Enter your address at checkout and drop a pin on the map so our professional can find you." },

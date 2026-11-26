@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ContactForm } from "./ContactForm";
 import { BASE, SUPPORT_EMAIL, SUPPORT_PHONE, WHATSAPP_NUMBER } from "@/lib/config";
 
-export const metadata: Metadata = { title: "Contact Us" };
+export const metadata: Metadata = { alternates: { canonical: "/contact" }, title: "Contact Us" };
 
 export default function Contact() {
   return (

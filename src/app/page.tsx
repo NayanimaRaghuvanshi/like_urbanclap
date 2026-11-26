@@ -5,13 +5,16 @@ import { LocationChecker } from "@/components/LocationChecker";
 import { ReviewCard } from "@/components/ReviewList";
 import { Histogram, Stars } from "@/components/ui";
 import { CATEGORIES, GALLERY } from "@/lib/catalog";
-import { SUPPORT_PHONE } from "@/lib/config";
+import { BASE, SITE_URL, SUPPORT_EMAIL, SUPPORT_PHONE, WHATSAPP_NUMBER } from "@/lib/config";
+import { JsonLd } from "@/components/JsonLd";
+import type { Metadata } from "next";
 import { dateLabel, durationLabel, inr, slotLabel } from "@/lib/format";
 import { activeServices, nextSlotFor, ratingSummary, startingPrice, visibleReviews } from "@/lib/queries";
 import { istDate } from "@/lib/slots";
 import { syncDb } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const RATE_CARD = ["plb-tap", "ele-fan", "ele-switch", "car-lock", "pnl:PVC Panel (per panel):880:varies", "pnl:WPC Panel (per panel):1350:varies", "wd-texture", "car-assembly", "fur-tv-price:Custom TV Unit:8000:3-5 days", "pvc-full-wall"];
 
@@ -36,6 +39,27 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd data={{ "@context": "https://schema.org", "@type": "WebSite", name: "HomeServ", alternateName: ["Home Serv", `HomeServ ${BASE.cityName}`], url: SITE_URL }} />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "HomeAndConstructionBusiness",
+          "@id": `${SITE_URL}/#business`,
+          name: "HomeServ",
+          url: SITE_URL,
+          logo: `${SITE_URL}/icon.svg`,
+          image: `${SITE_URL}/opengraph-image`,
+          telephone: SUPPORT_PHONE,
+          email: SUPPORT_EMAIL,
+          priceRange: "₹₹",
+          address: { "@type": "PostalAddress", addressLocality: BASE.name, addressRegion: "Karnataka", addressCountry: "IN" },
+          geo: { "@type": "GeoCoordinates", latitude: BASE.lat, longitude: BASE.lng },
+          areaServed: BASE.cityName,
+          openingHoursSpecification: { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "09:00", closes: "00:30" },
+          sameAs: [`https://wa.me/${WHATSAPP_NUMBER}`],
+          makesOffer: CATEGORIES.map((c) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: c.name, url: `${SITE_URL}/services/${c.slug}` } })),
+        }}
+      />
       {/* HERO */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="absolute inset-0 opacity-60" aria-hidden>
@@ -44,7 +68,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-900/30" aria-hidden />
         <div className="container-x relative grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_420px] lg:py-24">
           <div>
-          <p className="mb-4 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary ring-1 ring-white/20">Verified pros · Same-day service</p>
+          <p className="mb-4 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary ring-1 ring-white/20">HomeServ · Verified pros · Same-day service</p>
           <h1 className="max-w-2xl text-3xl font-bold leading-tight sm:text-5xl">🏠 Home Repairs & Design — At Your Doorstep</h1>
           <p className="mt-4 max-w-xl text-base text-slate-200 sm:text-lg">PVC Panels • Wall Design • Plumber • Electrician • Carpenter • Furniture — at your doorstep.</p>
           <div className="mt-8"><LocationChecker /></div>

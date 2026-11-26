@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { BASE } from "@/lib/config";
 
-export const metadata: Metadata = { title: "About Us" };
+export const metadata: Metadata = { alternates: { canonical: "/about" }, title: "About HomeServ", description: "HomeServ is a home services company in HSR Layout, Bengaluru — plumbers, electricians, PVC panels, wall design, carpentry and furniture." };
 
 export default function About() {
   return (

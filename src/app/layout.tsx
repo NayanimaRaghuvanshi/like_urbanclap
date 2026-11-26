@@ -5,15 +5,22 @@ import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { DemoBanner, WhatsAppFab } from "@/components/Floating";
 import { StoreProvider, ToastProvider } from "@/components/store";
+import { BASE, SITE_URL } from "@/lib/config";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const poppins = Poppins({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-poppins", display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
-  title: { default: "HomeServ — Home Repairs & Design at Your Doorstep", template: "%s | HomeServ" },
-  description: "PVC panels, wall design, plumbers, electricians, carpenters and custom furniture — verified pros at your doorstep. Open 9 AM – 12:30 AM.",
-  openGraph: { type: "website", siteName: "HomeServ", locale: "en_IN" },
+  metadataBase: new URL(SITE_URL),
+  title: { default: `HomeServ — Plumber, Electrician, PVC Panels & Wall Design in ${BASE.cityName}`, template: "%s | HomeServ" },
+  description: `HomeServ: book verified plumbers, electricians, carpenters, PVC panel installers, wall designers and furniture makers in ${BASE.cityName}. Fixed prices, same-day slots, open 9 AM – 12:30 AM.`,
+  applicationName: "HomeServ",
+  keywords: ["HomeServ", "Home Serv", "home services", "plumber", "electrician", "PVC panels", "wall design", "carpenter", "furniture", BASE.cityName, "HSR Layout"],
+  openGraph: { type: "website", siteName: "HomeServ", locale: "en_IN", url: "/" },
+  twitter: { card: "summary_large_image" },
+  robots: { index: true, follow: true },
+  // Google Search Console "HTML tag" verification — paste only the content="..." value into Vercel.
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 };
 
 export const viewport: Viewport = { themeColor: "#2563EB", width: "device-width", initialScale: 1 };

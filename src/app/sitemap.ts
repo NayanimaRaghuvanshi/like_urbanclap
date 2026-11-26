@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { CATEGORIES } from "@/lib/catalog";
+import { SITE_URL } from "@/lib/config";
 import { db, syncDb } from "@/lib/db";
 import { allSeoPages } from "@/lib/seo";
 
@@ -7,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   await syncDb();
-  const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const base = SITE_URL;
   const statics = ["", "/services", "/gallery", "/about", "/contact", "/faqs", "/providers", "/terms", "/privacy"];
   return [
     ...statics.map((p) => ({ url: base + p, changeFrequency: "weekly" as const, priority: p ? 0.6 : 1 })),
