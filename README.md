@@ -98,6 +98,22 @@ on cold starts, so bookings can vanish. The whole store is one JSON document (la
 fine for a small business; move to Postgres for higher volume. Customer logins are signed cookies, so
 they work across instances either way.
 
+## WhatsApp auto-reply bot
+
+`/api/whatsapp/webhook` answers every incoming WhatsApp message instantly (logic in `src/lib/whatsappBot.ts`):
+
+- Greeting + menu (1–7 services, 8 track booking, 9 talk to the team, 0 menu)
+- Service replies with popular prices and a booking link; understands keywords ("tap leaking", "pvc panel", "fan")
+- Booking status for the sender's own bookings, or by booking ID (only if it matches the sender's number)
+- "9"/"talk to someone" pauses the bot for that chat for 6 hours so staff can reply ("0" brings it back)
+- Out-of-hours note, replies to photos/voice notes, ignores duplicate deliveries, verifies Meta's signature
+
+Setup: create a Meta app with the WhatsApp product, add your number, then set `WHATSAPP_ACCESS_TOKEN`
+(permanent System User token), `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_VERIFY_TOKEN` (any string you choose) and
+`WHATSAPP_APP_SECRET` in Vercel. In Meta → WhatsApp → Configuration set the callback URL to
+`https://<your-site>/api/whatsapp/webhook` with the same verify token and subscribe to **messages**.
+Incoming and outgoing messages appear in Admin → Inbox.
+
 ## Project layout
 
 ```

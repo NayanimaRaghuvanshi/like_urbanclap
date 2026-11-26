@@ -35,6 +35,10 @@ export interface DB {
   orders: Record<string, { amount: number; mock: boolean; createdAt: string; usedBy?: string }>;
   /** File-mode photo storage (Redis mode keeps photos in separate keys). */
   photoData?: Record<string, string>;
+  /** WhatsApp bot: message ids already answered (Meta retries webhooks) */
+  waSeen?: string[];
+  /** WhatsApp bot: numbers that asked for a person → auto-replies paused until this time (ms) */
+  waMuted?: Record<string, number>;
 }
 
 const DB_VERSION = 1;
