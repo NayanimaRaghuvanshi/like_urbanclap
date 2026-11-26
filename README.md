@@ -1,9 +1,9 @@
-# HomeServ — Hyperlocal Home Services (2 km radius)
+# HomeServ — Home Services Booking Platform
 
 A working implementation of the HomeServ PRD: a managed, fixed-price home-services marketplace with
 instant bookings (plumber, electrician, carpenter, painting) and consultation-first bookings
-(PVC/WPC panels, wall design, custom furniture), served only within **2 km** of the business base,
-**9:00 AM – 12:30 AM**, 7 days a week.
+(PVC/WPC panels, wall design, custom furniture), **9:00 AM – 12:30 AM**, 7 days a week. There is no
+service-area restriction by default; set `NEXT_PUBLIC_SERVICE_RADIUS_M` (e.g. `2000`) to limit bookings to a radius.
 
 Built with **Next.js 14 (App Router) + TypeScript + Tailwind CSS**, Zod validation and Leaflet/OpenStreetMap.
 
@@ -16,7 +16,7 @@ npm run dev                  # http://localhost:3000
 ```
 
 ```bash
-npm test          # unit tests: slots, IST time, availability, 2 km check, pricing, SEO routes
+npm test          # unit tests: slots, IST time, availability, service-radius check, pricing, SEO routes
 npm run build     # production build + type check
 ```
 
@@ -33,9 +33,9 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
 
 ### End-to-end flow to try
 
-1. Home → enter "Agara" → ✅ serviceable (try "Indiranagar" for the waitlist modal).
+1. Home → enter "Agara" → ✅ serviceable.
 2. Plumber → add *Tap Repair* + *Leak Detection* → View Cart.
-3. Pick a slot → address (map pin + 2 km circle) → OTP → notes → Review → **Confirm**.
+3. Pick a slot → address (map pin) → OTP → notes → Review → **Confirm**.
 4. Tracking page shows the assigned pro, the **start OTP** and the status timeline.
 5. Log in at `/pro` as the assigned pro → *On the way* → enter start OTP → customer's page reveals the
    **end OTP** → *Complete job* → *Mark collected*.
@@ -48,7 +48,7 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
 | Homepage: hero + serviceability check + live next slot, category grid, how-it-works, before/after gallery, rate card, histogram + reviews (incl. negative), trust section, footer | `src/app/page.tsx` |
 | Category pages: sub-category chips, service cards, package "SAVE ₹X", details bottom-sheet, sticky cart bar, histogram, 1★ reviews, FAQ accordion + JSON-LD | `src/app/services/[slug]` |
 | PVC flow: 6-step how-it-works, ₹49 measurement visit, filterable panel catalogue, price calculator | `src/components/PanelCatalog.tsx` |
-| Booking flow (5 steps): cart & offers & promo → date/slot grid → address + Leaflet map + 2 km check + waitlist → phone OTP, name, email, mandatory notes (250 chars), up to 3 compressed photos → review with GST, pay-after-service / pay-now, T&C | `src/app/book/BookingFlow.tsx` |
+| Booking flow (5 steps): cart & offers & promo → date/slot grid → address + Leaflet map + optional radius check + waitlist → phone OTP, name, email, mandatory notes (250 chars), up to 3 compressed photos → review with GST, pay-after-service / pay-now, T&C | `src/app/book/BookingFlow.tsx` |
 | Confirmation & tracking: "Meet your pro" card, status timeline, start/end OTPs, reschedule, cancel (₹50 late fee), review, invoice | `src/app/track/[id]` |
 | My Bookings: Upcoming / Completed / Cancelled tabs, rebook, invoice, review | `src/app/my-bookings` |
 | Provider profiles (+ all reviews) | `src/app/providers` |
@@ -69,7 +69,7 @@ All 11 seeded providers have phones `98000000NN`; see `src/lib/seed.ts`.
   10% off above ₹500, max ₹200 (a promo code replaces it if better); GST 18%. Prices are always
   recomputed server-side.
 - **Cancellation**: free up to 2 h before the slot, ₹50 after; reschedule allowed up to 2 h before.
-- **Serviceability**: haversine distance ≤ 2,000 m from `NEXT_PUBLIC_BASE_LAT/LNG`
+- **Serviceability**: unrestricted by default. With `NEXT_PUBLIC_SERVICE_RADIUS_M` set, haversine distance ≤ that radius from `NEXT_PUBLIC_BASE_LAT/LNG`
   (mirrors PostGIS `ST_DWithin` in `db/schema.sql`).
 
 ## What is simulated (swap before launch)

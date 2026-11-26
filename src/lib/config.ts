@@ -8,9 +8,11 @@ export const BASE = {
   cityName: "Bengaluru",
 };
 
-export const SERVICE_RADIUS_M = Number(env("NEXT_PUBLIC_SERVICE_RADIUS_M", "2000"));
-export const SUPPORT_PHONE = env("NEXT_PUBLIC_SUPPORT_PHONE", "+919876543210");
-export const WHATSAPP_NUMBER = env("NEXT_PUBLIC_WHATSAPP_NUMBER", "919876543210");
+/** Service radius in metres. 0 = no restriction (serve every address). */
+export const SERVICE_RADIUS_M = Number(env("NEXT_PUBLIC_SERVICE_RADIUS_M", "0"));
+export const AREA_LIMITED = SERVICE_RADIUS_M > 0;
+export const SUPPORT_PHONE = env("NEXT_PUBLIC_SUPPORT_PHONE", "+916394014604");
+export const WHATSAPP_NUMBER = env("NEXT_PUBLIC_WHATSAPP_NUMBER", "916394014604");
 export const SUPPORT_EMAIL = "hello@homeserv.in";
 
 /** Operating window: 9:00 AM → 12:30 AM next day. Slots are 30-minute starts. */

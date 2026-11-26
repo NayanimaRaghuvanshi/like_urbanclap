@@ -394,7 +394,7 @@ function AnalyticsTab({ a }: { a: Props["analytics"] }) {
 function InboxTab({ waitlist, contacts, notifications }: Props) {
   return (
     <div className="space-y-6">
-      <section><h2 className="mb-2 font-semibold">Waitlist (out of range) — {waitlist.length}</h2><Table head={["When", "Phone", "Email", "Area"]} empty="No waitlist sign-ups." rows={waitlist.slice().reverse().map((w) => [relTime(w.at), w.phone ?? "—", w.email ?? "—", w.locality ?? "—"])} /></section>
+      <section><h2 className="mb-2 font-semibold">Waitlist — {waitlist.length}</h2><Table head={["When", "Phone", "Email", "Area"]} empty="No waitlist sign-ups." rows={waitlist.slice().reverse().map((w) => [relTime(w.at), w.phone ?? "—", w.email ?? "—", w.locality ?? "—"])} /></section>
       <section><h2 className="mb-2 font-semibold">Contact messages — {contacts.length}</h2><Table head={["When", "Name", "Phone", "Message"]} empty="No messages." rows={contacts.map((c) => [relTime(c.at), c.name, c.phone, c.message])} /></section>
       <section><h2 className="mb-2 font-semibold">Notification log (SMS / WhatsApp / Email)</h2><Table head={["When", "Channel", "To", "Booking", "Message"]} empty="Nothing sent yet." rows={notifications.map((n) => [relTime(n.at), n.channel, `${n.audience}: ${n.to}`, n.bookingId ?? "—", n.message])} /></section>
     </div>

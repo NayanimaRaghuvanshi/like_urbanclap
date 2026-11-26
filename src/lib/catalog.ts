@@ -19,7 +19,7 @@ export const CATEGORIES: Category[] = [
     shortName: "Plumber",
     icon: "🔧",
     tagline: "Leaks, taps, toilets & tanks — fixed today",
-    description: "Background-verified plumbers for repairs, installations and full bathroom checks. Same-day service within 2 km.",
+    description: "Background-verified plumbers for repairs, installations and full bathroom checks. Same-day service available.",
     startingLabel: "Starts ₹99",
     mode: "instant",
     warranty: "30-day service guarantee",
@@ -316,7 +316,7 @@ export const LOCALITIES: Locality[] = [
   { slug: "somasundarapalya", name: "Somasundarapalya", pin: "560102", lat: 12.903, lng: 77.646 },
   { slug: "mangammanapalya", name: "Mangammanapalya", pin: "560068", lat: 12.902, lng: 77.629 },
   { slug: "koramangala-1st-block", name: "Koramangala 1st Block", pin: "560034", lat: 12.925, lng: 77.629 },
-  // Outside the radius — kept so search can explain the waitlist instead of returning nothing.
+  // Further from base — only excluded if a service radius is configured.
   { slug: "indiranagar", name: "Indiranagar", pin: "560038", lat: 12.9784, lng: 77.6408 },
   { slug: "whitefield", name: "Whitefield", pin: "560066", lat: 12.9698, lng: 77.75 },
   { slug: "jayanagar", name: "Jayanagar", pin: "560041", lat: 12.925, lng: 77.5938 },

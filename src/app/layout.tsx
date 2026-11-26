@@ -12,7 +12,7 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["600", "700"], variable: 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: { default: "HomeServ — Home Repairs & Design at Your Doorstep", template: "%s | HomeServ" },
-  description: "PVC panels, wall design, plumbers, electricians, carpenters and custom furniture — verified pros within 2 km of you. Open 9 AM – 12:30 AM.",
+  description: "PVC panels, wall design, plumbers, electricians, carpenters and custom furniture — verified pros at your doorstep. Open 9 AM – 12:30 AM.",
   openGraph: { type: "website", siteName: "HomeServ", locale: "en_IN" },
 };
 

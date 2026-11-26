@@ -8,7 +8,7 @@ import { SlotPicker } from "@/components/SlotPicker";
 import { api, useStore, useToast } from "@/components/store";
 import { Sheet } from "@/components/ui";
 import { CATEGORIES, LOCALITIES } from "@/lib/catalog";
-import { AUTO_DISCOUNT, SERVICE_RADIUS_M, SUPPORT_PHONE, VISITING_CHARGE, VISITING_WAIVER_MIN } from "@/lib/config";
+import { AREA_LIMITED, AUTO_DISCOUNT, SUPPORT_PHONE, VISITING_CHARGE, VISITING_WAIVER_MIN } from "@/lib/config";
 import { dateLabel, durationLabel, inr, slotLabel } from "@/lib/format";
 import { checkServiceable } from "@/lib/geo";
 import { compressImage } from "@/lib/image";
@@ -240,7 +240,7 @@ export function BookingFlow() {
           </div>
           <div className="card p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-sm font-medium">Drag the 📍 pin to your exact building — blue circle is our 2 km area.</p>
+              <p className="text-sm font-medium">Drag the 📍 pin to your exact building so our pro can find you.</p>
               <button
                 className="btn-outline btn-sm"
                 onClick={() =>
@@ -258,15 +258,15 @@ export function BookingFlow() {
           </div>
           {geo ? (
             geo.serviceable ? (
-              <p className="rounded-xl bg-success-50 p-4 text-sm font-medium text-emerald-700">✅ Great! You're within our 2 km service area ({(geo.distanceM / 1000).toFixed(1)} km away).</p>
+              <p className="rounded-xl bg-success-50 p-4 text-sm font-medium text-emerald-700">✅ Great! We serve this address.</p>
             ) : (
               <div className="rounded-xl bg-danger-50 p-4">
-                <p className="mb-3 text-sm font-medium text-red-700">❌ Sorry, this location is {(geo.distanceM / 1000).toFixed(1)} km away — outside our {SERVICE_RADIUS_M / 1000} km service area.</p>
+                <p className="mb-3 text-sm font-medium text-red-700">❌ Sorry, this location is {(geo.distanceM / 1000).toFixed(1)} km away — outside our service area.</p>
                 <WaitlistForm locality={d.address.locality} lat={d.address.lat} lng={d.address.lng} />
               </div>
             )
           ) : (
-            <p className="rounded-xl bg-slate-100 p-4 text-sm text-ink-muted">Pick your locality or drop the pin so we can confirm we serve your address.</p>
+            <p className="rounded-xl bg-slate-100 p-4 text-sm text-ink-muted">{AREA_LIMITED ? "Pick your locality or drop the pin so we can confirm we serve your address." : "Pick your locality or drop the pin on the map to mark your exact location."}</p>
           )}
         </div>
       )}

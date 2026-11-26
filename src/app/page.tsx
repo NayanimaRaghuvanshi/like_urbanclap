@@ -44,9 +44,9 @@ export default async function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-900/30" aria-hidden />
         <div className="container-x relative grid items-center gap-10 py-14 sm:py-20 lg:grid-cols-[1fr_420px] lg:py-24">
           <div>
-          <p className="mb-4 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary ring-1 ring-white/20">Hyperlocal · Within 2 km of you</p>
+          <p className="mb-4 inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary ring-1 ring-white/20">Verified pros · Same-day service</p>
           <h1 className="max-w-2xl text-3xl font-bold leading-tight sm:text-5xl">🏠 Home Repairs & Design — At Your Doorstep</h1>
-          <p className="mt-4 max-w-xl text-base text-slate-200 sm:text-lg">PVC Panels • Wall Design • Plumber • Electrician • Carpenter • Furniture — within 2 km of you.</p>
+          <p className="mt-4 max-w-xl text-base text-slate-200 sm:text-lg">PVC Panels • Wall Design • Plumber • Electrician • Carpenter • Furniture — at your doorstep.</p>
           <div className="mt-8"><LocationChecker /></div>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link href="/services" className="btn-amber">Book a Service</Link>

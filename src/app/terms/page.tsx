@@ -7,7 +7,7 @@ export default function Terms() {
       <h1 className="section-title">Terms & Conditions</h1>
       <p className="rounded-xl bg-secondary-50 p-3 text-sm text-amber-800">Template — have these reviewed by a lawyer before launch.</p>
       <h2>1. Services</h2><p>HomeServ provides home services through professionals it employs or contracts. Prices shown are for the described scope; additional work is quoted and done only with your approval.</p>
-      <h2>2. Bookings & slots</h2><p>Bookings can be made between 9:00 AM and 12:30 AM, at least 1 hour and at most 7 days in advance, for addresses within our 2 km service area.</p>
+      <h2>2. Bookings & slots</h2><p>Bookings can be made between 9:00 AM and 12:30 AM, at least 1 hour and at most 7 days in advance.</p>
       <h2>3. Cancellation & rescheduling</h2><p>Free up to 2 hours before the slot. Cancellations within 2 hours of the slot incur a ₹50 fee. Online payments for cancelled bookings are refunded to the original method within 5–7 working days.</p>
       <h2>4. Payments</h2><p>Pay after service via UPI or cash, or pay online via Razorpay. Spare parts are charged at MRP with a receipt. All prices are exclusive of GST unless stated.</p>
       <h2>5. Consultations & custom work</h2><p>Consultation fees (₹49–₹199) are adjusted against your order if you proceed. Custom work requires a 50% advance for materials; the balance is due on completion.</p>

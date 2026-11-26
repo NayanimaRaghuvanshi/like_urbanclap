@@ -64,7 +64,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
             <span className="text-ink-muted">•</span>
             <span>{pros} verified pros nearby</span>
           </p>
-          <p className="mt-2 text-sm text-ink-muted">⚡ Same-day service within 2 km · 🛡️ {c.warranty}{isPvc ? " · 300+ designs available" : ""}</p>
+          <p className="mt-2 text-sm text-ink-muted">⚡ Same-day service · 🛡️ {c.warranty}{isPvc ? " · 300+ designs available" : ""}</p>
         </div>
       </section>
 

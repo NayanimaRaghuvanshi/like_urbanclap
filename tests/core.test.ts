@@ -61,10 +61,11 @@ test("availability respects provider bookings, leave, capacity and blocks", () =
   assert.equal(slotAvailability(base).find((s) => s.slot === 600)!.available, 0);
 });
 
-test("2 km serviceability", () => {
-  assert.equal(checkServiceable({ lat: 12.9116, lng: 77.6389 }).serviceable, true);
+test("serviceability: unrestricted by default, 2 km when configured", () => {
   const indira = LOCALITIES.find((l) => l.slug === "indiranagar")!;
-  const r = checkServiceable(indira);
+  assert.equal(checkServiceable(indira).serviceable, true);
+  assert.equal(checkServiceable({ lat: 12.9116, lng: 77.6389 }, 2000).serviceable, true);
+  const r = checkServiceable(indira, 2000);
   assert.equal(r.serviceable, false);
   assert.ok(r.distanceM > 6000);
   assert.ok(Math.abs(distanceM({ lat: 0, lng: 0 }, { lat: 0, lng: 1 }) - 111195) < 50);
@@ -95,12 +96,11 @@ test("panel estimate", () => {
   assert.equal(estimateWall(0, 10, pvc).total, 0);
 });
 
-test("SEO locality pages only for served localities", () => {
+test("SEO locality pages", () => {
   const served = servedLocalities();
-  assert.ok(served.length >= 8);
-  assert.ok(!served.some((l) => l.slug === "indiranagar"));
+  assert.equal(served.length, LOCALITIES.length);
   assert.equal(parseSeo("bangalore-pvc-panels-agara")?.category.slug, "pvc-panels");
   assert.equal(parseSeo("bangalore-wall-designer-hsr-layout-sector-2")?.locality.slug, "hsr-layout-sector-2");
-  assert.equal(parseSeo("bangalore-plumber-indiranagar"), null);
+  assert.equal(parseSeo("bangalore-plumber-indiranagar")?.locality.slug, "indiranagar");
   assert.equal(parseSeo("mumbai-plumber-agara"), null);
 });

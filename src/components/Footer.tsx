@@ -9,7 +9,7 @@ export function Footer() {
         <div>
           <p className="font-display text-xl font-bold text-white">Home<span className="text-secondary">Serv</span></p>
           <ul className="mt-4 space-y-2 text-sm">
-            <li>📍 Serviceable within 2 km of {BASE.name}</li>
+            <li>📍 Based in {BASE.name}</li>
             <li>🕐 Open: 9 AM – 12:30 AM, 7 days</li>
             <li>📞 <a href={`tel:${SUPPORT_PHONE}`} className="hover:text-white">{SUPPORT_PHONE.replace(/^\+91(\d{5})(\d{5})$/, "+91 $1 $2")}</a></li>
             <li>📧 <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-white">{SUPPORT_EMAIL}</a></li>

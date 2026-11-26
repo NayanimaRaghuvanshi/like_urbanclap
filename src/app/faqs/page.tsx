@@ -6,7 +6,7 @@ import { CATEGORIES } from "@/lib/catalog";
 export const metadata: Metadata = { title: "FAQs" };
 
 const GENERAL = [
-  { q: "Which areas do you serve?", a: "Homes and offices within 2 km of our base. Enter your address on the homepage to check instantly — if you're outside, join the waitlist." },
+  { q: "Which areas do you serve?", a: "Homes and offices across the city. Enter your address at checkout and drop a pin on the map so our professional can find you." },
   { q: "What are your working hours?", a: "9:00 AM to 12:30 AM, 7 days a week. Slots are 30 minutes apart; book at least 1 hour ahead and up to 7 days in advance." },
   { q: "How are professionals verified?", a: "Every professional completes Aadhaar KYC and a police background check before their first job." },
   { q: "What are the start and end OTPs?", a: "When your pro arrives, share the start OTP shown on your tracking page. Share the end OTP only once you're satisfied — this confirms the job is complete." },

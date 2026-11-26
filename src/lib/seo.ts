@@ -2,7 +2,7 @@ import { CATEGORIES, LOCALITIES } from "./catalog.ts";
 import { BASE, SERVICE_RADIUS_M } from "./config.ts";
 import { distanceM } from "./geo.ts";
 
-export const servedLocalities = () => LOCALITIES.filter((l) => distanceM(l, BASE) <= SERVICE_RADIUS_M);
+export const servedLocalities = () => LOCALITIES.filter((l) => SERVICE_RADIUS_M <= 0 || distanceM(l, BASE) <= SERVICE_RADIUS_M);
 
 export function seoSlug(category: string, locality: string) {
   return `${BASE.city}-${category}-${locality}`;

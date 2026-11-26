@@ -62,7 +62,7 @@ export function quoteFor(items: { serviceId: string; qty: number }[], promoCode?
 export function createBooking(input: CreateBookingInput): Booking {
   const { lines, quote, category } = quoteFor(input.items, input.promoCode);
   const geo = checkServiceable(input.address);
-  if (!geo.serviceable) throw new BookingError(`This address is ${(geo.distanceM / 1000).toFixed(1)} km away — outside our 2 km service area.`);
+  if (!geo.serviceable) throw new BookingError(`This address is ${(geo.distanceM / 1000).toFixed(1)} km away — outside our service area.`);
 
   const items = lines.map(({ serviceId, name, price, qty, durationMin }) => ({ serviceId, name, price, qty, durationMin }));
   const duration = bookingDuration({ items });

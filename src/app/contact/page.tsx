@@ -14,7 +14,7 @@ export default function Contact() {
           <li><a className="btn-outline w-full justify-start" href={`tel:${SUPPORT_PHONE}`}>📞 {SUPPORT_PHONE}</a></li>
           <li><a className="btn-outline w-full justify-start" href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer">💬 WhatsApp us</a></li>
           <li><a className="btn-outline w-full justify-start" href={`mailto:${SUPPORT_EMAIL}`}>📧 {SUPPORT_EMAIL}</a></li>
-          <li className="rounded-xl bg-slate-100 p-4 text-sm">📍 Serving within 2 km of {BASE.name}<br />Interested in joining as a professional? Send us a message with your trade and experience.</li>
+          <li className="rounded-xl bg-slate-100 p-4 text-sm">📍 Based in {BASE.name}<br />Interested in joining as a professional? Send us a message with your trade and experience.</li>
         </ul>
       </div>
       <div className="card p-6"><ContactForm /></div>

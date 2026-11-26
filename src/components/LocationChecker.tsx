@@ -66,7 +66,7 @@ export function LocationChecker({ compact = false }: { compact?: boolean }) {
       const r = await api<Result>("/api/serviceability", { json: { lat, lng } });
       setLocation({ lat, lng, label, ...r });
       setQ(label);
-      if (r.serviceable) toast(`Great! ${label} is within our 2 km service area.`, "ok");
+      if (r.serviceable) toast(`Great! We serve ${label}.`, "ok");
       else setWaitlist({ label, lat, lng, distanceM: r.distanceM });
     } catch (e) {
       toast((e as Error).message, "err");
@@ -137,12 +137,12 @@ export function LocationChecker({ compact = false }: { compact?: boolean }) {
       </div>
       {location && !compact && (
         <p className={`mt-3 text-sm font-medium ${location.serviceable ? "text-emerald-300" : "text-red-300"}`}>
-          {location.serviceable ? `✅ We serve ${location.label} (${(location.distanceM / 1000).toFixed(1)} km away)` : `❌ ${location.label} is ${(location.distanceM / 1000).toFixed(1)} km away — outside our 2 km area`}
+          {location.serviceable ? `✅ We serve ${location.label}` : `❌ ${location.label} is outside our service area`}
         </p>
       )}
       <Sheet open={!!waitlist} onClose={() => setWaitlist(null)} title="We're not in your area yet">
         <p className="mb-4 text-sm text-ink-muted">
-          {waitlist?.label} is {((waitlist?.distanceM ?? 0) / 1000).toFixed(1)} km from our base — we currently serve within 2 km so our pros can reach you fast. Join the waitlist and we'll tell you the day we expand.
+          {waitlist?.label} is {((waitlist?.distanceM ?? 0) / 1000).toFixed(1)} km from our base — outside our current service area. Join the waitlist and we'll tell you the day we expand.
         </p>
         <WaitlistForm locality={waitlist?.label} lat={waitlist?.lat} lng={waitlist?.lng} />
       </Sheet>

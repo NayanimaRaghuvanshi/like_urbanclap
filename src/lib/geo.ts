@@ -18,7 +18,7 @@ export function distanceM(a: LatLng, b: LatLng): number {
 
 export function checkServiceable(p: LatLng, radius = SERVICE_RADIUS_M) {
   const d = distanceM(p, BASE);
-  return { serviceable: d <= radius, distanceM: Math.round(d) };
+  return { serviceable: radius <= 0 || d <= radius, distanceM: Math.round(d) };
 }
 
 export function isValidLatLng(p: Partial<LatLng>): p is LatLng {

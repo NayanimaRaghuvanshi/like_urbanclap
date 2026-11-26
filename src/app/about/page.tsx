@@ -8,9 +8,9 @@ export default function About() {
   return (
     <div className="container-x max-w-3xl space-y-6 py-10">
       <h1 className="section-title">About HomeServ</h1>
-      <p className="text-lg">HomeServ is a hyperlocal home services company serving homes within 2 km of {BASE.name}. We fix, build and beautify homes — from a dripping tap at 11 PM to a full fluted-panel living room.</p>
+      <p className="text-lg">HomeServ is a home services company based in {BASE.name}. We fix, build and beautify homes — from a dripping tap at 11 PM to a full fluted-panel living room.</p>
       <div className="grid gap-4 sm:grid-cols-3">
-        {[["2 km", "Service radius so pros arrive fast"], ["9 AM – 12:30 AM", "Open 7 days, including nights"], ["100%", "Pros with Aadhaar KYC & police verification"]].map(([a, b]) => (
+        {[["Same day", "Service for most bookings"], ["9 AM – 12:30 AM", "Open 7 days, including nights"], ["100%", "Pros with Aadhaar KYC & police verification"]].map(([a, b]) => (
           <div key={a} className="card p-5"><p className="font-display text-2xl font-bold text-primary">{a}</p><p className="text-sm text-ink-muted">{b}</p></div>
         ))}
       </div>
